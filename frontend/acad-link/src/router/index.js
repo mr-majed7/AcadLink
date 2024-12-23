@@ -1,12 +1,18 @@
 import SignIn from "@/views/SignIn.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
 
 const routes = [
   {
     path: "/",
     name: "home",
-    component: HomeView,
+    component: () =>
+      import(/* webpackChunkName: "home" */ "../views/HomePage.vue"),
+  },
+  {
+    path: "/dashboard",
+    name: "dashboard",
+    component: () =>
+      import(/* webpackChunkName: "dashboard" */ "../views/DashBoard.vue"),
   },
   {
     path: "/signin",
