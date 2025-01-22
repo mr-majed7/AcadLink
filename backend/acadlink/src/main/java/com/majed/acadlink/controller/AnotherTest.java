@@ -4,14 +4,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TestController {
-    /**
-     * This is a test api controller
-     *
-     * @return String
-     */
-    @GetMapping("/hello")
+public class AnotherTest {
+    @GetMapping
     public String test() {
-        return "Hello, Wor";
+        return "This is another test";
     }
 }
