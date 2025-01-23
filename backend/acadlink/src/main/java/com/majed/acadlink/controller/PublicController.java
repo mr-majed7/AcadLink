@@ -1,16 +1,20 @@
 package com.majed.acadlink.controller;
 
 import com.majed.acadlink.dto.UserDTO;
+import com.majed.acadlink.dto.UserLogin;
 import com.majed.acadlink.dto.UserSignUp;
 import com.majed.acadlink.entitie.User;
 import com.majed.acadlink.repository.UserRepo;
 import com.majed.acadlink.service.UserDetailsServiceImpl;
 import com.majed.acadlink.service.UserService;
+import com.majed.acadlink.utility.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +36,9 @@ public class PublicController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @PostMapping("/sign-up")
     public ResponseEntity<UserDTO> signUp(@RequestBody UserSignUp userData) {
@@ -59,5 +66,19 @@ public class PublicController {
             }
         }
         return null;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> logIn(@RequestBody UserLogin userData) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userData.getUsernameorEmail(), userData.getPassword())
+            );
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userData.getUsernameorEmail());
+            String jwt = jwtUtil.generateToken(userDetails.getUsername());
+            return new ResponseEntity<>(jwt, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
