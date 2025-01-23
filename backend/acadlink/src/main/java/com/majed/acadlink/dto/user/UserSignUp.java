@@ -1,4 +1,4 @@
-package com.majed.acadlink.dto;
+package com.majed.acadlink.dto.user;
 
 import lombok.Data;
 

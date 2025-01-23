@@ -1,7 +1,7 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.dto.UserDTO;
-import com.majed.acadlink.dto.UserSignUp;
+import com.majed.acadlink.dto.user.UserDTO;
+import com.majed.acadlink.dto.user.UserSignUp;
 import com.majed.acadlink.entitie.User;
 import com.majed.acadlink.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
