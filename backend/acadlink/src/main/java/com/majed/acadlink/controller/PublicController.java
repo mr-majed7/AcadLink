@@ -60,7 +60,7 @@ public class PublicController {
 
         try {
             UserDTO addedUser = userService.createUser(userData);
-            return new ResponseEntity<>(addedUser, HttpStatus.OK);
+            return new ResponseEntity<>(addedUser, HttpStatus.CREATED);
         } catch (Exception e) {
             log.error(e.toString());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
