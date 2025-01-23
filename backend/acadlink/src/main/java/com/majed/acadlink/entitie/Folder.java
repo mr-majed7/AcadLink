@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "folders")
 @Data
-@JsonIgnoreProperties({"books"})
+@JsonIgnoreProperties({"books", "lectureSlides", "lectureNotes", "others"})
 public class Folder {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
