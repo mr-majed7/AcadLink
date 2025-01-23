@@ -3,7 +3,6 @@ package com.majed.acadlink.controller;
 import com.majed.acadlink.dto.UserDTO;
 import com.majed.acadlink.dto.UserLogin;
 import com.majed.acadlink.dto.UserSignUp;
-import com.majed.acadlink.entitie.User;
 import com.majed.acadlink.repository.UserRepo;
 import com.majed.acadlink.service.UserDetailsServiceImpl;
 import com.majed.acadlink.service.UserService;
@@ -15,12 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -42,30 +40,31 @@ public class PublicController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<UserDTO> signUp(@RequestBody UserSignUp userData) {
-        Optional<User> user = userRepo.findByEmail(userData.getEmail());
-
-        if (user.isPresent()) {
+        try {
+            // Check if a user with the provided email exists
+            userDetailsService.loadUserByUsername(userData.getEmail());
             log.error("User exists with this email");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException e) {
+            // Email not found, continue with username check
         }
 
-        user = userRepo.findByUsername(userData.getUserName());
-
-        if (user.isPresent()) {
+        try {
+            // Check if a user with the provided username exists
+            userDetailsService.loadUserByUsername(userData.getUserName());
             log.error("User exists with this username");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException e) {
+            // Username not found, proceed with sign-up
         }
-        if (user.isEmpty()) {
 
-            try {
-                UserDTO addedUser = userService.createUser(userData);
-                return new ResponseEntity<>(addedUser, HttpStatus.OK);
-            } catch (Exception e) {
-                log.error(e.toString());
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+        try {
+            UserDTO addedUser = userService.createUser(userData);
+            return new ResponseEntity<>(addedUser, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error(e.toString());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return null;
     }
 
     @PostMapping("/login")
