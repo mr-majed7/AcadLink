@@ -2,7 +2,6 @@ package com.majed.acadlink.config;
 
 import com.majed.acadlink.service.UserDetailsServiceImpl;
 import com.majed.acadlink.utility.JWTFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,10 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 public class SpringSecurityConfig {
-    private final UserDetailsServiceImpl userDetailsService;
-
-    @Autowired
-    private JWTFilter jwtFilter;
+    private UserDetailsServiceImpl userDetailsService;
 
     public SpringSecurityConfig(UserDetailsServiceImpl userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -32,7 +28,7 @@ public class SpringSecurityConfig {
                         .requestMatchers("/folder/**", "/user/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTFilter(), UsernamePasswordAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
                 .build();
     }

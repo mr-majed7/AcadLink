@@ -24,7 +24,10 @@ public class LectureNote {
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
 
-    public LectureNote() {
+    /**
+     * No args constructor for Hibernate
+     */
+    public LectureNote() { //Hibernate
 
     }
 }

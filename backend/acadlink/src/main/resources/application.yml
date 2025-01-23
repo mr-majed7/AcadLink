@@ -28,7 +28,9 @@ spring:
     redis:
       host: localhost
       port: 6379
-
+  custom:
+    security:
+      jwtsecret: MaK+HaV^uvCHVfsEYfypW#7g9^k*Z8$V
 springdoc:
   swagger-ui:
     path: /

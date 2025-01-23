@@ -41,7 +41,10 @@ public class Folder {
     private List<Other> others;
 
 
-    public Folder() {
+    /**
+     * No args constructor for Hibernate
+     */
+    public Folder() { //For Hibernate
 
     }
 }

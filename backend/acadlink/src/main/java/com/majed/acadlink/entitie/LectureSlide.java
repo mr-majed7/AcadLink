@@ -24,7 +24,10 @@ public class LectureSlide {
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
 
-    public LectureSlide() {
+    /**
+     * No args constructor for Hibernate
+     */
+    public LectureSlide() {//Hibernate
 
     }
 }

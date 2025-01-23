@@ -24,7 +24,10 @@ public class Other {
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
 
-    public Other() {
+    /**
+     * No args constructor for Hibernate
+     */
+    public Other() { //Hibernate
 
     }
 }

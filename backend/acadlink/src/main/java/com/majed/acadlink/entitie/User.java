@@ -44,6 +44,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Folder> folders;
 
+    /**
+     * No args constructor for Hibernate
+     */
     public User() {
 
     }

@@ -23,7 +23,10 @@ public class Book {
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
 
-    public Book() {
+    /**
+     * No args constructor for Hibernate
+     */
+    public Book() { //For Hibernate
 
     }
 }
