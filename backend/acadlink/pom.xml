@@ -28,7 +28,7 @@
     </scm>
     <properties>
         <java.version>21</java.version>
-        <sonar.token>sqa_959c651ce3f5de8d86fca1d52eebe84eb0a1caf6</sonar.token>
+        <sonar.token>${env.SONAR_TOKEN}</sonar.token>
     </properties>
     <dependencies>
         <dependency>

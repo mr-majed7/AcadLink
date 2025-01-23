@@ -31,6 +31,7 @@ spring:
   custom:
     security:
       jwtsecret: MaK+HaV^uvCHVfsEYfypW#7g9^k*Z8$V
+      sonar_token: sqa_959c651ce3f5de8d86fca1d52eebe84eb0a1caf6
 springdoc:
   swagger-ui:
     path: /
