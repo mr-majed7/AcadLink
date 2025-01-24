@@ -5,6 +5,7 @@ import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.entitie.*;
 import com.majed.acadlink.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+@Component
 public class SaveMaterialUtil {
     private final String FILE_STORAGE_PATH = "/home/majed/AcadLink/backend/acadlink/storage/materials";
     @Autowired
