@@ -1,7 +1,7 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.dto.user.UserDTO;
-import com.majed.acadlink.dto.user.UserSignUp;
+import com.majed.acadlink.dto.user.UserResponseDTO;
+import com.majed.acadlink.dto.user.UserSignUpDTO;
 import com.majed.acadlink.entitie.User;
 import com.majed.acadlink.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class UserService {
     @Autowired
     private UserRepo userRepo;
 
-    public UserDTO createUser(UserSignUp userData) {
+    public UserResponseDTO createUser(UserSignUpDTO userData) {
 
         User user = new User();
         user.setFirstName(userData.getFirstName());
@@ -29,7 +29,7 @@ public class UserService {
 
         try {
             User savedUser = userRepo.save(user);
-            return new UserDTO(
+            return new UserResponseDTO(
                     savedUser.getId(),
                     savedUser.getFirstName(),
                     savedUser.getLastName(),

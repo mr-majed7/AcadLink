@@ -1,8 +1,8 @@
 package com.majed.acadlink.controller;
 
-import com.majed.acadlink.dto.user.UserDTO;
-import com.majed.acadlink.dto.user.UserLogin;
-import com.majed.acadlink.dto.user.UserSignUp;
+import com.majed.acadlink.dto.user.UserLoginDTO;
+import com.majed.acadlink.dto.user.UserResponseDTO;
+import com.majed.acadlink.dto.user.UserSignUpDTO;
 import com.majed.acadlink.repository.UserRepo;
 import com.majed.acadlink.service.UserDetailsServiceImpl;
 import com.majed.acadlink.service.UserService;
@@ -39,7 +39,7 @@ public class PublicController {
     private JWTUtil jwtUtil;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserDTO> signUp(@RequestBody UserSignUp userData) {
+    public ResponseEntity<UserResponseDTO> signUp(@RequestBody UserSignUpDTO userData) {
         try {
             // Check if a user with the provided email exists
             userDetailsService.loadUserByUsername(userData.getEmail());
@@ -59,7 +59,7 @@ public class PublicController {
         }
 
         try {
-            UserDTO addedUser = userService.createUser(userData);
+            UserResponseDTO addedUser = userService.createUser(userData);
             return new ResponseEntity<>(addedUser, HttpStatus.CREATED);
         } catch (Exception e) {
             log.error(e.toString());
@@ -68,7 +68,7 @@ public class PublicController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> logIn(@RequestBody UserLogin userData) {
+    public ResponseEntity<String> logIn(@RequestBody UserLoginDTO userData) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(userData.getUsernameorEmail(), userData.getPassword())

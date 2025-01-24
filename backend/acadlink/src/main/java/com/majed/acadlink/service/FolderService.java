@@ -1,7 +1,7 @@
 package com.majed.acadlink.service;
 
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
-import com.majed.acadlink.dto.folder.FolderDTO;
+import com.majed.acadlink.dto.folder.FolderResponseDTO;
 import com.majed.acadlink.entitie.Folder;
 import com.majed.acadlink.entitie.User;
 import com.majed.acadlink.repository.FolderRepo;
@@ -25,27 +25,27 @@ public class FolderService {
     private GetUserUtil getUserUtil;
 
 
-    public FolderDTO addFolder(FolderCreateDTO folderData) {
+    public FolderResponseDTO addFolder(FolderCreateDTO folderData) {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
         if (user.isPresent()) {
             Folder folder = new Folder();
             folder.setName(folderData.getName());
             folder.setUser(user.get());
             Optional<Folder> addedFolder = Optional.of(folderRepo.save(folder));
-            return new FolderDTO(addedFolder.get().getId(), addedFolder.get().getName(), addedFolder.get().getCreatedAt());
+            return new FolderResponseDTO(addedFolder.get().getId(), addedFolder.get().getName(), addedFolder.get().getCreatedAt());
         } else {
             log.error("User does not exists");
             return null;
         }
     }
 
-    public List<FolderDTO> getAllFolders() {
+    public List<FolderResponseDTO> getAllFolders() {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
 
         if (user.isPresent()) {
             List<Folder> folders = folderRepo.findByUserId(user.get().getId());
             return folders.stream()
-                    .map(folder -> new FolderDTO(folder.getId(), folder.getName(), folder.getCreatedAt()))
+                    .map(folder -> new FolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt()))
                     .collect(Collectors.toList());
         } else {
             return Collections.EMPTY_LIST;

@@ -3,7 +3,7 @@ package com.majed.acadlink.dto.user;
 import lombok.Data;
 
 @Data
-public class UserSignUp {
+public class UserSignUpDTO {
     private String firstName;
     private String lastName;
     private String email;
