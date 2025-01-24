@@ -6,6 +6,7 @@ import com.majed.acadlink.dto.folder.FolderResponseDTO;
 import com.majed.acadlink.entitie.Folder;
 import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.service.FolderService;
+import com.majed.acadlink.utility.AuthorizationCheck;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,8 @@ public class FolderController {
     private FolderRepo folderRepo;
     @Autowired
     private FolderService folderService;
+    @Autowired
+    private AuthorizationCheck authorizationCheck;
 
     @PostMapping("/create")
     public ResponseEntity<AllFolderResponseDTO> createFolder(@RequestBody FolderCreateDTO folderData) {
@@ -52,8 +55,12 @@ public class FolderController {
         Optional<Folder> folder = folderRepo.findById(folderId);
 
         if (folder.isPresent()) {
-            FolderResponseDTO response = folderService.getFolder(folder.get());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            if (authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+                FolderResponseDTO response = folderService.getFolder(folder.get());
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

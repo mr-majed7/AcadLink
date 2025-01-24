@@ -3,6 +3,7 @@ package com.majed.acadlink.service;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.entitie.Materials;
+import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.repository.MaterialsRepo;
 import com.majed.acadlink.utility.SaveMaterialUtil;
@@ -11,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,7 +45,14 @@ public class MaterialService {
 
     public MaterialResponseDTO findMaterial(UUID id) {
         Optional<Materials> material = materialsRepo.findById(id);
-        return material.map(value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(), value.getType(), value.getFolder().getId())).orElse(null);
+        return material.map(value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
+                value.getType(), value.getFolder().getId())).orElse(null);
+    }
+
+    public List<MaterialResponseDTO> findMaterialByType(MaterialType type, UUID folderId) {
+        List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
+        return materials.stream().map(value -> new MaterialResponseDTO(value.getId(), value.getName(),
+                value.getLink(), value.getType(), value.getFolder().getId())).collect(Collectors.toList());
     }
 
 }
