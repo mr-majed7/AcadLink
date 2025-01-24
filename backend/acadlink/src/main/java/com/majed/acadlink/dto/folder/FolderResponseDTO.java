@@ -1,15 +1,23 @@
 package com.majed.acadlink.dto.folder;
 
+
+import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
-@Data
 @AllArgsConstructor
+@Data
 public class FolderResponseDTO {
     private UUID id;
     private String name;
-    private LocalDate createdAt;
+    private LocalDate CreatedAt;
+    private List<MaterialResponseDTO> books;
+    private List<MaterialResponseDTO> LectureSlides;
+    private List<MaterialResponseDTO> lectureNotes;
+    private List<MaterialResponseDTO> others;
 }
+
