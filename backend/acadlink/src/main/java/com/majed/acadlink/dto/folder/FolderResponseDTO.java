@@ -15,9 +15,6 @@ public class FolderResponseDTO {
     private UUID id;
     private String name;
     private LocalDate CreatedAt;
-    private List<MaterialResponseDTO> books;
-    private List<MaterialResponseDTO> LectureSlides;
-    private List<MaterialResponseDTO> lectureNotes;
-    private List<MaterialResponseDTO> others;
+    private List<MaterialResponseDTO> materials;
 }
 

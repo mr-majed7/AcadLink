@@ -6,7 +6,7 @@ import com.majed.acadlink.dto.folder.FolderResponseDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.entitie.Folder;
 import com.majed.acadlink.entitie.User;
-import com.majed.acadlink.repository.*;
+import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.utility.GetUserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +22,6 @@ import java.util.stream.Collectors;
 public class FolderService {
     @Autowired
     private FolderRepo folderRepo;
-    private BookRepo bookRepo;
-    @Autowired
-    private LectureSlideRepo lectureSlideRepo;
-    @Autowired
-    private LectureNoteRepo lectureNoteRepo;
-    @Autowired
-    private OtherRepo otherRepo;
     @Autowired
     private GetUserUtil getUserUtil;
 
@@ -61,22 +54,10 @@ public class FolderService {
     }
 
     public FolderResponseDTO getFolder(Folder folder) {
-        List<MaterialResponseDTO> books = folder.getBooks().stream()
-                .map(book -> new MaterialResponseDTO(book.getId(), book.getName(), book.getLink(), folder.getId()))
+        List<MaterialResponseDTO> materials = folder.getMaterials().stream()
+                .map(material -> new MaterialResponseDTO(material.getId(), material.getName(), material.getLink(), material.getType(), folder.getId()))
                 .collect(Collectors.toList());
 
-        List<MaterialResponseDTO> lectureSlides = folder.getLectureSlides().stream()
-                .map(lectureSlide -> new MaterialResponseDTO(lectureSlide.getId(), lectureSlide.getName(),
-                        lectureSlide.getLink(), folder.getId()))
-                .collect(Collectors.toList());
-        List<MaterialResponseDTO> lectureNotes = folder.getLectureNotes().stream()
-                .map(lectureNote -> new MaterialResponseDTO(lectureNote.getId(), lectureNote.getName()
-                        , lectureNote.getLink(), folder.getId()))
-                .collect(Collectors.toList());
-        List<MaterialResponseDTO> others = folder.getOthers().stream()
-                .map(other -> new MaterialResponseDTO(other.getId(), other.getName(), other.getLink(), folder.getId()))
-                .collect(Collectors.toList());
-        return new FolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt(),
-                books, lectureSlides, lectureNotes, others);
+        return new FolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt(), materials);
     }
 }

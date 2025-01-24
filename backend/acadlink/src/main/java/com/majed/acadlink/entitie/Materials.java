@@ -1,14 +1,15 @@
 package com.majed.acadlink.entitie;
 
+import com.majed.acadlink.enums.MaterialType;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Entity
-@Table(name = "books")
+@Table(name = "materials")
 @Data
-public class Book {
+public class Materials {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -19,14 +20,10 @@ public class Book {
     @Column(nullable = false)
     private String link;
 
+    @Column(nullable = false)
+    private MaterialType type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
-
-    /**
-     * No args constructor for Hibernate
-     */
-    public Book() { //For Hibernate
-
-    }
 }

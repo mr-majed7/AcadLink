@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "folders")
 @Data
-@JsonIgnoreProperties({"books", "lectureSlides", "lectureNotes", "others"})
+@JsonIgnoreProperties({"materials"})
 public class Folder {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,16 +29,7 @@ public class Folder {
     private User user;
 
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Book> books;
-
-    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LectureSlide> lectureSlides;
-
-    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LectureNote> lectureNotes;
-
-    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Other> others;
+    private List<Materials> materials;
 
 
     /**

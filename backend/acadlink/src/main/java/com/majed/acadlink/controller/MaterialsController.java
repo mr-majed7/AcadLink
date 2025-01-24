@@ -2,6 +2,7 @@ package com.majed.acadlink.controller;
 
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
+import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.service.MaterialService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import java.util.UUID;
 @Slf4j
 public class MaterialsController {
     @Autowired
+    private FolderRepo folderRepo;
+    @Autowired
     private MaterialService materialService;
 
     @PostMapping(value = "/add-material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -30,9 +33,9 @@ public class MaterialsController {
         }
     }
 
-    @GetMapping("/get-material/{type}/{id}")
-    public ResponseEntity<MaterialResponseDTO> getMaterial(@PathVariable String type, @PathVariable UUID id) {
-        MaterialResponseDTO response = materialService.findMaterial(type, id);
+    @GetMapping("/get-material/{id}")
+    public ResponseEntity<MaterialResponseDTO> getMaterial(@PathVariable UUID id) {
+        MaterialResponseDTO response = materialService.findMaterial(id);
         if (response != null) {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
