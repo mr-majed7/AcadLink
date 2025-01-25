@@ -1,6 +1,7 @@
 package com.majed.acadlink.dto.material;
 
 import com.majed.acadlink.enums.MaterialType;
+import com.majed.acadlink.enums.Privacy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -13,6 +14,7 @@ public class MaterialResponseDTO {
     private String name;
     private String link;
     private MaterialType type;
+    private Privacy privacy;
     private UUID folderId;
 
 }

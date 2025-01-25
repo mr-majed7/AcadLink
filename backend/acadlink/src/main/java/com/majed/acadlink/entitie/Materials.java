@@ -1,6 +1,7 @@
 package com.majed.acadlink.entitie;
 
 import com.majed.acadlink.enums.MaterialType;
+import com.majed.acadlink.enums.Privacy;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,6 +23,9 @@ public class Materials {
 
     @Column(nullable = false)
     private MaterialType type;
+
+    @Column(nullable = false)
+    private Privacy privacy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = false)

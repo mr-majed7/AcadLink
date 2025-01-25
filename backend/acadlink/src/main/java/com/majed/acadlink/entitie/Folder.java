@@ -1,6 +1,7 @@
 package com.majed.acadlink.entitie;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.majed.acadlink.enums.Privacy;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,6 +25,8 @@ public class Folder {
     @CreationTimestamp
     private LocalDate createdAt;
 
+    @Column(nullable = false)
+    private Privacy privacy;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

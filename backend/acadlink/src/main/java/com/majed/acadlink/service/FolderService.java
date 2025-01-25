@@ -31,9 +31,11 @@ public class FolderService {
         if (user.isPresent()) {
             Folder folder = new Folder();
             folder.setName(folderData.getName());
+            folder.setPrivacy(folderData.getPrivacy());
             folder.setUser(user.get());
             Optional<Folder> addedFolder = Optional.of(folderRepo.save(folder));
-            return new AllFolderResponseDTO(addedFolder.get().getId(), addedFolder.get().getName(), addedFolder.get().getCreatedAt());
+            return new AllFolderResponseDTO(addedFolder.get().getId(), addedFolder.get().getName(),
+                    addedFolder.get().getCreatedAt(), addedFolder.get().getPrivacy());
         } else {
             log.error("User does not exists");
             return null;
@@ -46,7 +48,8 @@ public class FolderService {
         if (user.isPresent()) {
             List<Folder> folders = folderRepo.findByUserId(user.get().getId());
             return folders.stream()
-                    .map(folder -> new AllFolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt()))
+                    .map(folder -> new AllFolderResponseDTO(folder.getId(), folder.getName(),
+                            folder.getCreatedAt(), folder.getPrivacy()))
                     .collect(Collectors.toList());
         } else {
             return Collections.EMPTY_LIST;
@@ -55,9 +58,10 @@ public class FolderService {
 
     public FolderResponseDTO getFolder(Folder folder) {
         List<MaterialResponseDTO> materials = folder.getMaterials().stream()
-                .map(material -> new MaterialResponseDTO(material.getId(), material.getName(), material.getLink(), material.getType(), folder.getId()))
+                .map(material -> new MaterialResponseDTO(material.getId(), material.getName(), material.getLink(),
+                        material.getType(), material.getPrivacy(), folder.getId()))
                 .collect(Collectors.toList());
 
-        return new FolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt(), materials);
+        return new FolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt(), folder.getPrivacy(), materials);
     }
 }

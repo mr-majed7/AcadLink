@@ -56,9 +56,11 @@ public class SaveMaterialUtil {
         material.setName(materialData.getName());
         material.setLink(filePath);
         material.setType(materialData.getType());
+        material.setPrivacy(materialData.getPrivacy());
         Materials savedMaterial = materialsRepo.save(material);
         responseDTO = new MaterialResponseDTO(
-                savedMaterial.getId(), savedMaterial.getName(), savedMaterial.getLink(), savedMaterial.getType(), savedMaterial.getFolder().getId()
+                savedMaterial.getId(), savedMaterial.getName(), savedMaterial.getLink(), savedMaterial.getType(),
+                savedMaterial.getPrivacy(), savedMaterial.getFolder().getId()
         );
 
 

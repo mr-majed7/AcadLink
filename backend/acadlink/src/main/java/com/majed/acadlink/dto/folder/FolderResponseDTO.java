@@ -2,6 +2,7 @@ package com.majed.acadlink.dto.folder;
 
 
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
+import com.majed.acadlink.enums.Privacy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -15,6 +16,7 @@ public class FolderResponseDTO {
     private UUID id;
     private String name;
     private LocalDate CreatedAt;
+    private Privacy privacy;
     private List<MaterialResponseDTO> materials;
 }
 

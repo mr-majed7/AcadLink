@@ -46,13 +46,13 @@ public class MaterialService {
     public MaterialResponseDTO findMaterial(UUID id) {
         Optional<Materials> material = materialsRepo.findById(id);
         return material.map(value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
-                value.getType(), value.getFolder().getId())).orElse(null);
+                value.getType(), value.getPrivacy(), value.getFolder().getId())).orElse(null);
     }
 
     public List<MaterialResponseDTO> findMaterialByType(MaterialType type, UUID folderId) {
         List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
         return materials.stream().map(value -> new MaterialResponseDTO(value.getId(), value.getName(),
-                value.getLink(), value.getType(), value.getFolder().getId())).collect(Collectors.toList());
+                value.getLink(), value.getType(), value.getPrivacy(), value.getFolder().getId())).collect(Collectors.toList());
     }
 
 }
