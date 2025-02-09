@@ -3,6 +3,7 @@ package com.majed.acadlink.service;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
+import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.entitie.Folder;
 import com.majed.acadlink.entitie.User;
@@ -63,5 +64,20 @@ public class FolderService {
                 .collect(Collectors.toList());
 
         return new FolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt(), folder.getPrivacy(), materials);
+    }
+
+    public UpdateFolderResponseDTO updateFolder(Folder folder, FolderCreateDTO newData) {
+        if (newData.getName() != null) {
+            folder.setName(newData.getName());
+        }
+        if (newData.getPrivacy() != null) {
+            folder.setPrivacy(newData.getPrivacy());
+        }
+
+        Folder updatedFolder = folderRepo.save(folder);
+
+        return new UpdateFolderResponseDTO(updatedFolder.getId(), updatedFolder.getName()
+                , updatedFolder.getCreatedAt(), updatedFolder.getPrivacy()
+        );
     }
 }

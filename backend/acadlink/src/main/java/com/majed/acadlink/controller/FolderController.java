@@ -3,6 +3,7 @@ package com.majed.acadlink.controller;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
+import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.entitie.Folder;
 import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.service.FolderService;
@@ -65,5 +66,23 @@ public class FolderController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PutMapping("/update-folder/{folderId}")
+    public ResponseEntity<UpdateFolderResponseDTO> updateFolder(@PathVariable UUID folderId, @RequestBody FolderCreateDTO newData) {
+        Optional<Folder> folder = folderRepo.findById(folderId);
+
+        if (folder.isPresent()) {
+            if (authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+                UpdateFolderResponseDTO response = folderService.updateFolder(folder.get(), newData);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //WORK ON DELETE FOLDER AFTER FINISHING MATERIAL UPDATE AND DELETE
 
 }
