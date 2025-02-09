@@ -1,4 +1,4 @@
-package com.majed.acadlink.entitie;
+package com.majed.acadlink.domain.entitie;
 
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.enums.Privacy;

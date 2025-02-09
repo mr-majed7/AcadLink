@@ -1,8 +1,8 @@
-package com.majed.acadlink.controller;
+package com.majed.acadlink.api.v1.controller;
 
+import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
-import com.majed.acadlink.entitie.Folder;
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.service.MaterialService;

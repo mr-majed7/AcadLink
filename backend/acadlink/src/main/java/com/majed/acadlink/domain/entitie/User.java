@@ -1,4 +1,4 @@
-package com.majed.acadlink.entitie;
+package com.majed.acadlink.domain.entitie;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;

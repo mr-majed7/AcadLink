@@ -1,8 +1,8 @@
 package com.majed.acadlink.service;
 
+import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.dto.user.UserResponseDTO;
 import com.majed.acadlink.dto.user.UserSignUpDTO;
-import com.majed.acadlink.entitie.User;
 import com.majed.acadlink.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

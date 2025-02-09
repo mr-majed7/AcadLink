@@ -1,4 +1,4 @@
-package com.majed.acadlink.controller;
+package com.majed.acadlink.api.v1.controller;
 
 import com.majed.acadlink.dto.user.UserLoginDTO;
 import com.majed.acadlink.dto.user.UserResponseDTO;

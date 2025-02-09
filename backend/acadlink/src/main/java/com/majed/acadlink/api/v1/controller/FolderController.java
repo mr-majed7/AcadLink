@@ -1,10 +1,10 @@
-package com.majed.acadlink.controller;
+package com.majed.acadlink.api.v1.controller;
 
+import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
 import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
-import com.majed.acadlink.entitie.Folder;
 import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.service.FolderService;
 import com.majed.acadlink.utility.AuthorizationCheck;

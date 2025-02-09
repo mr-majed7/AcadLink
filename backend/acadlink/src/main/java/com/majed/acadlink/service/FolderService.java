@@ -1,12 +1,12 @@
 package com.majed.acadlink.service;
 
+import com.majed.acadlink.domain.entitie.Folder;
+import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
 import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
-import com.majed.acadlink.entitie.Folder;
-import com.majed.acadlink.entitie.User;
 import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.utility.GetUserUtil;
 import lombok.extern.slf4j.Slf4j;

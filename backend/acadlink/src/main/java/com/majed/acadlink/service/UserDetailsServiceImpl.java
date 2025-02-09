@@ -1,6 +1,6 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.entitie.User;
+import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

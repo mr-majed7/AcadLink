@@ -1,9 +1,9 @@
 package com.majed.acadlink.utility;
 
+import com.majed.acadlink.domain.entitie.Folder;
+import com.majed.acadlink.domain.entitie.Materials;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
-import com.majed.acadlink.entitie.Folder;
-import com.majed.acadlink.entitie.Materials;
 import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.repository.MaterialsRepo;
 import lombok.extern.slf4j.Slf4j;
