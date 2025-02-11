@@ -1,9 +1,9 @@
 package com.majed.acadlink.service;
 
 import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.repository.UserRepo;
 import com.majed.acadlink.dto.user.UserResponseDTO;
 import com.majed.acadlink.dto.user.UserSignUpDTO;
-import com.majed.acadlink.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +23,7 @@ public class UserService {
         User user = new User();
         user.setFirstName(userData.getFirstName());
         user.setLastName(userData.getLastName());
+        user.setInstitute(userData.getInstitute());
         user.setEmail(userData.getEmail());
         user.setUsername(userData.getUserName());
         user.setPassword(passWordEncoder.encode(userData.getPassword()));
@@ -33,6 +34,7 @@ public class UserService {
                     savedUser.getId(),
                     savedUser.getFirstName(),
                     savedUser.getLastName(),
+                    savedUser.getInstitute(),
                     savedUser.getEmail(),
                     savedUser.getUsername(),
                     savedUser.getCreatedAt()

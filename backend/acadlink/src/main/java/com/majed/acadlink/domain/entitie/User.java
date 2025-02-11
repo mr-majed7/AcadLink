@@ -37,6 +37,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String institute;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDate createdAt;

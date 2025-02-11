@@ -1,9 +1,9 @@
 package com.majed.acadlink.api.v1.controller;
 
+import com.majed.acadlink.domain.repository.UserRepo;
 import com.majed.acadlink.dto.user.UserLoginDTO;
 import com.majed.acadlink.dto.user.UserResponseDTO;
 import com.majed.acadlink.dto.user.UserSignUpDTO;
-import com.majed.acadlink.repository.UserRepo;
 import com.majed.acadlink.service.UserDetailsServiceImpl;
 import com.majed.acadlink.service.UserService;
 import com.majed.acadlink.utility.JWTUtil;

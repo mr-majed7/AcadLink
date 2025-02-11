@@ -1,7 +1,7 @@
 package com.majed.acadlink.utility;
 
 import com.majed.acadlink.domain.entitie.User;
-import com.majed.acadlink.repository.UserRepo;
+import com.majed.acadlink.domain.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
