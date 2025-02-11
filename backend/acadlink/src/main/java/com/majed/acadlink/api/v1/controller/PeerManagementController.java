@@ -9,13 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("peers")
@@ -37,10 +35,15 @@ public class PeerManagementController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-//    @PostMapping("send-peer-request/{user1}/{user2}")
-//    public ResponseEntity<boolean> addPeer(@PathVariable UUID user1, @PathVariable UUID user2) {
-//
-//    }
+    @PostMapping("send-peer-request/{userId}")
+    public ResponseEntity<Boolean> addPeer(@PathVariable UUID userId) {
+        Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
+        if (peersManagementService.addPeer(currentUser.get().getId(), userId)) {
+            return new ResponseEntity<Boolean>(true, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
 }

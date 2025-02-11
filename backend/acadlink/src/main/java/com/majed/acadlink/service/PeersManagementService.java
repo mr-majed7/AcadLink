@@ -42,4 +42,26 @@ public class PeersManagementService {
 
         return PeerStatus.FALSE;
     }
+
+    public boolean addPeer(UUID user1Id, UUID user2Id) {
+        PeerStatus peerStatus = getPeerStatus(user1Id, user2Id);
+
+        if (peerStatus == PeerStatus.FALSE) {
+            Peers peers = new Peers();
+            User user1 = userRepo.findById(user1Id).get();
+            User user2 = userRepo.findById(user2Id).get();
+            peers.setUser1(user1);
+            peers.setUser2(user2);
+            try {
+                peersRepo.save(peers);
+                return true;
+            } catch (Exception e) {
+                log.error(e.toString());
+
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }
