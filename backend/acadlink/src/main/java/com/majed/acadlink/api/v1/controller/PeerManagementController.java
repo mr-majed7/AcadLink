@@ -86,6 +86,25 @@ public class PeerManagementController {
         List<PeerInfoDTO> peersList = peersManagementService.findPeers(currentUser.getId());
         return new ResponseEntity<>(peersList, HttpStatus.OK);
     }
+
+    @DeleteMapping("remove-peer/{peerId}")
+    public ResponseEntity<Boolean> removePeer(@PathVariable UUID peerId) {
+        Optional<Peers> peer = peersRepo.findById(peerId);
+
+        if (peer.isEmpty()) {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        } else {
+            User user1 = peer.get().getUser1();
+            User user2 = peer.get().getUser2();
+            if (authorizationCheck.checkAuthorization(user1.getId()) ||
+                    authorizationCheck.checkAuthorization(user2.getId())) {
+                peersRepo.delete(peer.get());
+                return new ResponseEntity<>(true, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
+            }
+        }
+    }
 }
 
 
