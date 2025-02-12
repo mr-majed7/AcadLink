@@ -1,7 +1,12 @@
 package com.majed.acadlink.api.v1.controller;
 
+import com.majed.acadlink.domain.entitie.Peers;
 import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.repository.PeersRepo;
+import com.majed.acadlink.dto.peers.PeerInfoDTO;
 import com.majed.acadlink.dto.peers.SearchResultDTO;
+import com.majed.acadlink.enums.PeerStatus;
+import com.majed.acadlink.enums.ReqType;
 import com.majed.acadlink.service.PeersManagementService;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.GetUserUtil;
@@ -19,6 +24,9 @@ import java.util.UUID;
 @RequestMapping("peers")
 @Slf4j
 public class PeerManagementController {
+    @Autowired
+    private PeersRepo peersRepo;
+
     @Autowired
     private AuthorizationCheck authorizationCheck;
 
@@ -45,5 +53,39 @@ public class PeerManagementController {
         }
     }
 
+    @GetMapping("get-peer-requests/{type}")
+    public ResponseEntity<List<PeerInfoDTO>> getRequests(@PathVariable ReqType type) {
+        Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
+        List<PeerInfoDTO> requestList = peersManagementService.getRequests(currentUser.get().getId(), type);
+        return new ResponseEntity<>(requestList, HttpStatus.OK);
+    }
 
+    @PutMapping("accept-peer-request/{reqId}")
+    public ResponseEntity<Boolean> acceptRequest(@PathVariable UUID reqId) {
+        Optional<Peers> request = peersRepo.findById(reqId);
+        if (request.isEmpty()) {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        } else if (request.get().getStatus() != PeerStatus.PENDING) {
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        } else {
+            if (authorizationCheck.checkAuthorization(request.get().getUser2().getId())) {
+                request.get().setStatus(PeerStatus.ACCEPTED);
+                peersRepo.save(request.get());
+                return new ResponseEntity<>(true, HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
+            }
+
+        }
+    }
+
+    @GetMapping("get-peers")
+    public ResponseEntity<List<PeerInfoDTO>> getPeers() {
+        User currentUser = getUserUtil.getAuthenticatedUser().get();
+
+        List<PeerInfoDTO> peersList = peersManagementService.findPeers(currentUser.getId());
+        return new ResponseEntity<>(peersList, HttpStatus.OK);
+    }
 }
+
+
