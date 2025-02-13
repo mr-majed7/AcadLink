@@ -162,7 +162,7 @@ export default {
             lastName: this.lastName,
             userName: this.username,
             email: this.email,
-            institution: this.institution,
+            institute: this.institution,
             password: this.password,
           });
 
