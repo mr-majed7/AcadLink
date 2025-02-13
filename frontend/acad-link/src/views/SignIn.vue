@@ -7,18 +7,21 @@
               <v-toolbar-title>Sign In to AcadLink</v-toolbar-title>
             </v-toolbar>
             <v-card-text class="py-5 px-4">
+              <v-alert v-if="errorMessage" type="error" class="mb-4" dense>
+              {{ errorMessage }}
+            </v-alert>
               <v-form @submit.prevent="signIn" ref="form">
                 <v-text-field
-                  v-model="email"
-                  label="Email"
-                  name="email"
-                  placeholder="Enter your email"
-                  prepend-icon="mdi-email"
-                  type="email"
-                  :rules="[emailRequired, validEmail]"
-                  required
-                  dense
-                ></v-text-field>
+                v-model="emailOrUsername"
+                label="Email or Username"
+                name="emailOrUsername"
+                placeholder="Enter your email or username"
+                prepend-icon="mdi-account"
+                required
+                dense
+              ></v-text-field>
+
+
     
                 <v-text-field
                   v-model="password"
@@ -63,43 +66,53 @@
   </template>
   
   <script>
-  export default {
-    name: 'SignIn',
-    data() {
-      return {
-        email: '',
-        password: '',
-        showPassword: false,
-        loading: false,
-      };
-    },
-    methods: {
-      // Validation Rules
-      emailRequired(value) {
-        return !!value || 'Email is required';
-      },
-      validEmail(value) {
-        const pattern =
-          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        return pattern.test(value) || 'Enter a valid email';
-      },
-      passwordRequired(value) {
-        return !!value || 'Password is required';
-      },
-      async signIn() {
-        if (this.$refs.form.validate()) {
-          this.loading = true;
-          // Simulate a delay for API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          console.log('Signing in with:', this.email, this.password);
-          this.loading = false;
-          // Redirect or update the store after successful sign-in
-          // this.$router.push('/dashboard');
+  import axios from 'axios';
+  import { mapMutations } from "vuex";
+
+export default {
+  name: "SignIn",
+  data() {
+    return {
+      emailOrUsername: "",
+      password: "",
+      showPassword: false,
+      loading: false,
+      errorMessage: "",
+    };
+  },
+  methods: {
+    ...mapMutations(["setToken"]),
+    async signIn() {
+      this.errorMessage = "";
+
+      try {
+        const response = await axios.post("http://127.0.0.1:8080/public/login", {
+          usernameorEmail: this.emailOrUsername,
+          password: this.password,
+        });
+
+        if (response.status === 200) {
+          const token = response.data;
+          this.setToken(token);
+          this.$router.push("/dashboard");
+          console.log(this.$store.state.authToken);
         }
-      },
+      } catch (error) {
+        console.error("Sign-in error:", error);
+        if (error.response && error.response.status === 400) {
+          this.errorMessage = "Invalid credentials";
+        } else {
+          this.errorMessage = "An unexpected error occurred. Please try again.";
+        }
+      } finally {
+        this.loading = false;
+      }
     },
-  };
+  },
+};
+
   </script>
+  
   
   <style scoped>
   .v-toolbar {

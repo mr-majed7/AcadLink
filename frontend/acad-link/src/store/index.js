@@ -1,14 +1,30 @@
-import { createStore } from 'vuex'
+import { createStore } from "vuex";
 
-export default createStore({
+const store = createStore({
   state: {
+    snackbar: {
+      message: "",
+      color: "",
+      visible: false,
+    },
+    authToken: null,
   },
-  getters: {
-  },
+  getters: {},
   mutations: {
+    showSnackbar(state, payload) {
+      state.snackbar.message = payload.message;
+      state.snackbar.color = payload.color || "info";
+      state.snackbar.visible = true;
+    },
+    hideSnackbar(state) {
+      state.snackbar.visible = false;
+    },
+    setToken(state, token) {
+      state.authToken = token;
+    },
   },
-  actions: {
-  },
-  modules: {
-  }
-})
+  actions: {},
+  modules: {},
+});
+
+export default store;
