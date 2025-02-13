@@ -37,15 +37,6 @@
                 required
                 dense
               ></v-text-field>
-              <v-select
-                v-model="country"
-                :items="countries"
-                label="Country"
-                name="country"
-                prepend-icon="mdi-earth"
-                required
-                dense
-              ></v-select>
               <v-checkbox
                 v-model="enrolled"
                 label="Currently enrolled in any educational institution?"
@@ -61,6 +52,17 @@
                 required
                 dense
               ></v-text-field>
+              <v-text-field
+                v-model="username"
+                label="Username"
+                name="username"
+                placeholder="Enter your username"
+                prepend-icon="mdi-account"
+                required
+                dense
+                @blur="checkUsernameAvailability"
+                :error-messages="usernameError"
+              />
               <v-text-field
                 v-model="password"
                 label="Password"
@@ -110,7 +112,7 @@
 </template>
 
 <script>
-import { countryList } from '@/data/countries';
+import axios from 'axios';
 
 export default {
   name: 'SignUp',
@@ -121,34 +123,59 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      country: null,
-      countries: countryList,
       enrolled: false,
       institution: '',
+      username: '',
+      usernameError: '',
       showPassword: false,
       loading: false,
     };
   },
   methods: {
-    async signUp() {
-      if (this.$refs.form.validate()) {
-        this.loading = true;
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('Signing up with:', {
-          firstName: this.firstName,
-          lastName: this.lastName,
-          email: this.email,
-          country: this.country,
-          institution: this.institution,
-          password: this.password,
-        });
-        this.loading = false;
-        // Redirect after signup
-        // this.$router.push('/dashboard');
+    async checkUsernameAvailability() {
+      if (!this.username) {
+        this.usernameError = 'Username is required';
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://127.0.0.1:8080/public/check-username/${encodeURIComponent(this.username)}`);
+
+        if (response.data===true) {
+          this.usernameError = 'Username is already taken';
+        } else {
+          this.usernameError = '';
+        }
+      } catch (error) {
+        console.error('Error checking username:', error);
+        this.usernameError = 'Error checking username';
       }
     },
-  },
+
+    async signUp() {
+      if (this.$refs.form.validate() && !this.usernameError) {
+        this.loading = true;
+
+        try {
+          const response = await axios.post('http://127.0.0.1:8080/public/sign-up', {
+            firstName: this.firstName,
+            lastName: this.lastName,
+            userName: this.username,
+            email: this.email,
+            institution: this.institution,
+            password: this.password,
+          });
+
+          console.log('Signup successful:', response.data);
+          this.$router.push('/signin');
+        } catch (error) {
+          console.error('Signup error:', error);
+        }
+
+        this.loading = false;
+      }
+    }
+  }
 };
 </script>
 
