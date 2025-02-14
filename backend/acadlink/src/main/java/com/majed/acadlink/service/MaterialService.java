@@ -33,6 +33,7 @@ public class MaterialService {
 
     public MaterialResponseDTO saveMaterial(MaterialAddDTO materialData) {
         try {
+            log.debug(materialData.getFile().toString());
             if (materialData.getFile() != null && !materialData.getFile().isEmpty()) {
                 return saveMaterialUtil.saveMaterialFile(materialData);
             } else if (materialData.getLink() != null && !materialData.getLink().isEmpty()) {
