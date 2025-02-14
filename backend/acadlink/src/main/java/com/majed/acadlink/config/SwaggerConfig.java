@@ -13,8 +13,9 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customConfig() {
         return new OpenAPI().
-                info(new Info().title("Journal App").
-                        description("My first Spring Boot backend project"))
+                info(new Info().title("AcadLink").
+                        description("A platform to manage and share academic resources"))
+
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components().addSecuritySchemes(
                         "bearerAuth", new SecurityScheme()
