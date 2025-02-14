@@ -11,7 +11,6 @@ import com.majed.acadlink.utility.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,19 +27,20 @@ import java.util.Optional;
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/public")
 public class PublicController {
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepo userRepo;
+    private final JWTUtil jwtUtil;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private UserRepo userRepo;
-
-    @Autowired
-    private JWTUtil jwtUtil;
+    public PublicController(UserDetailsServiceImpl userDetailsService, UserService userService,
+                            AuthenticationManager authenticationManager, UserRepo userRepo, JWTUtil jwtUtil) {
+        this.userDetailsService = userDetailsService;
+        this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.userRepo = userRepo;
+        this.jwtUtil = jwtUtil;
+    }
 
     @Operation(summary = "Sign up a new user", tags = {"1. Public"})
     @PostMapping("/sign-up")
@@ -50,6 +50,7 @@ public class PublicController {
             log.error("User exists with this email");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (UsernameNotFoundException e) {
+            log.error(e.toString());
         }
 
         try {
@@ -57,6 +58,7 @@ public class PublicController {
             log.error("User exists with this username");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (UsernameNotFoundException e) {
+            log.error(e.toString());
         }
 
         try {

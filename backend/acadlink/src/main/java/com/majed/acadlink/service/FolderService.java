@@ -2,29 +2,30 @@ package com.majed.acadlink.service;
 
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
 import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
-import com.majed.acadlink.repository.FolderRepo;
 import com.majed.acadlink.utility.GetUserUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class FolderService {
-    @Autowired
-    private FolderRepo folderRepo;
-    @Autowired
-    private GetUserUtil getUserUtil;
+    private final FolderRepo folderRepo;
+    private final GetUserUtil getUserUtil;
+
+    public FolderService(FolderRepo folderRepo, GetUserUtil getUserUtil) {
+        this.folderRepo = folderRepo;
+        this.getUserUtil = getUserUtil;
+    }
 
 
     public AllFolderResponseDTO addFolder(FolderCreateDTO folderData) {
@@ -51,7 +52,7 @@ public class FolderService {
             return folders.stream()
                     .map(folder -> new AllFolderResponseDTO(folder.getId(), folder.getName(),
                             folder.getCreatedAt(), folder.getPrivacy()))
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             return Collections.EMPTY_LIST;
         }
@@ -61,7 +62,7 @@ public class FolderService {
         List<MaterialResponseDTO> materials = folder.getMaterials().stream()
                 .map(material -> new MaterialResponseDTO(material.getId(), material.getName(), material.getLink(),
                         material.getType(), material.getPrivacy(), folder.getId()))
-                .collect(Collectors.toList());
+                .toList();
 
         return new FolderResponseDTO(folder.getId(), folder.getName(), folder.getCreatedAt(), folder.getPrivacy(), materials);
     }

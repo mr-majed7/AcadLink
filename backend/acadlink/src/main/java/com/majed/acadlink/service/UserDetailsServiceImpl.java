@@ -1,17 +1,20 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.domain.entitie.User;
-import com.majed.acadlink.domain.repository.UserRepo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.repository.UserRepo;
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-    @Autowired
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
+
+    public UserDetailsServiceImpl(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
 
 
     @Override

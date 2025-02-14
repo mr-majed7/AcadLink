@@ -1,8 +1,6 @@
 package com.majed.acadlink.config;
 
-import com.majed.acadlink.service.UserDetailsServiceImpl;
 import com.majed.acadlink.utility.JWTFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,13 +19,11 @@ import java.util.List;
 
 @Configuration
 public class SpringSecurityConfig {
-    private UserDetailsServiceImpl userDetailsService;
+    private final JWTFilter jwtFilter;
 
-    @Autowired
-    private JWTFilter jwtFilter;
 
-    public SpringSecurityConfig(UserDetailsServiceImpl userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public SpringSecurityConfig(JWTFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean

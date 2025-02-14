@@ -2,12 +2,11 @@ package com.majed.acadlink.utility;
 
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.repository.FolderRepo;
+import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
-import com.majed.acadlink.repository.FolderRepo;
-import com.majed.acadlink.repository.MaterialsRepo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,11 +20,13 @@ import java.util.Optional;
 @Component
 public class SaveMaterialUtil {
     private final String FILE_STORAGE_PATH = "/home/majed/AcadLink/backend/acadlink/storage/materials";
-    @Autowired
-    private FolderRepo folderRepo;
+    private final FolderRepo folderRepo;
+    private final MaterialsRepo materialsRepo;
 
-    @Autowired
-    private MaterialsRepo materialsRepo;
+    public SaveMaterialUtil(FolderRepo folderRepo, MaterialsRepo materialsRepo) {
+        this.folderRepo = folderRepo;
+        this.materialsRepo = materialsRepo;
+    }
 
 
     public MaterialResponseDTO saveMaterialFile(MaterialAddDTO materialData) throws IOException {

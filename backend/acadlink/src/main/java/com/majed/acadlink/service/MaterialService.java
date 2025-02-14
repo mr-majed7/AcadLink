@@ -1,14 +1,12 @@
 package com.majed.acadlink.service;
 
 import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
-import com.majed.acadlink.repository.FolderRepo;
-import com.majed.acadlink.repository.MaterialsRepo;
 import com.majed.acadlink.utility.SaveMaterialUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,17 +17,19 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class MaterialService {
-    @Autowired
-    private FolderRepo folderRepo;
-    @Autowired
-    private MaterialsRepo materialsRepo;
-    @Autowired
-    private SaveMaterialUtil saveMaterialUtil;
+    private final MaterialsRepo materialsRepo;
+    private final SaveMaterialUtil saveMaterialUtil;
+
+    public MaterialService(
+            MaterialsRepo materialsRepo,
+            SaveMaterialUtil saveMaterialUtil) {
+        this.materialsRepo = materialsRepo;
+        this.saveMaterialUtil = saveMaterialUtil;
+    }
 
     public MaterialResponseDTO saveMaterial(MaterialAddDTO materialData) {
         try {
@@ -57,7 +57,7 @@ public class MaterialService {
     public List<MaterialResponseDTO> findMaterialByType(MaterialType type, UUID folderId) {
         List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
         return materials.stream().map(value -> new MaterialResponseDTO(value.getId(), value.getName(),
-                value.getLink(), value.getType(), value.getPrivacy(), value.getFolder().getId())).collect(Collectors.toList());
+                value.getLink(), value.getType(), value.getPrivacy(), value.getFolder().getId())).toList();
     }
 
     public MaterialResponseDTO updateMaterial(Materials current, MaterialAddDTO newData) throws IOException {
@@ -82,7 +82,7 @@ public class MaterialService {
             current.setLink(filePath);
         }
 
-        Materials updatedMaterial = materialsRepo.save(current);
+        materialsRepo.save(current);
         return new MaterialResponseDTO(current.getId(), current.getName(), current.getLink(),
                 current.getType(), current.getPrivacy(), current.getFolder().getId()
 

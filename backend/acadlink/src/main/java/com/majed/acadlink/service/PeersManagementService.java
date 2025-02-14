@@ -9,22 +9,22 @@ import com.majed.acadlink.dto.peers.SearchResultDTO;
 import com.majed.acadlink.enums.PeerStatus;
 import com.majed.acadlink.enums.ReqType;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class PeersManagementService {
-    @Autowired
-    private PeersRepo peersRepo;
+    private final PeersRepo peersRepo;
+    private final UserRepo userRepo;
 
-    @Autowired
-    private UserRepo userRepo;
+    public PeersManagementService(PeersRepo peersRepo, UserRepo userRepo) {
+        this.peersRepo = peersRepo;
+        this.userRepo = userRepo;
+    }
 
     public List<SearchResultDTO> searchUsers(String entry, UUID currentUser) {
         List<User> userList = userRepo.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(entry, entry);
@@ -32,7 +32,7 @@ public class PeersManagementService {
             PeerStatus peerStatus = getPeerStatus(currentUser, user.getId());
             return new SearchResultDTO(user.getId(), user.getFirstName(), user.getLastName(),
                     user.getEmail(), user.getUsername(), user.getInstitute(), peerStatus);
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
 
@@ -81,7 +81,7 @@ public class PeersManagementService {
             return new PeerInfoDTO(req.getId(), req.getUser2().getId(), user.getFirstName()
                     , user.getLastName(), user.getEmail(), user.getInstitute(), user.getUsername()
             );
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public List<PeerInfoDTO> findPeers(UUID userId) {
@@ -97,6 +97,6 @@ public class PeersManagementService {
             return new PeerInfoDTO(peer.getId(), user.getId(), user.getFirstName()
                     , user.getLastName(), user.getEmail(), user.getInstitute(), user.getUsername()
             );
-        }).collect(Collectors.toList());
+        }).toList();
     }
 }

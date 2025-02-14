@@ -3,6 +3,8 @@ package com.majed.acadlink.api.v1.controller;
 
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.repository.FolderRepo;
+import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
@@ -11,7 +13,6 @@ import com.majed.acadlink.utility.AuthorizationCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +28,20 @@ import java.util.UUID;
 @Slf4j
 @Tag(name = "4. Materials Management", description = "Endpoints for managing materials")
 public class MaterialsController {
-    @Autowired
-    private com.majed.acadlink.repository.FolderRepo folderRepo;
-    @Autowired
-    private MaterialService materialService;
-    @Autowired
-    private AuthorizationCheck authorizationCheck;
-    @Autowired
-    private com.majed.acadlink.repository.MaterialsRepo materialsRepo;
+    private final AuthorizationCheck authorizationCheck;
+    private final FolderRepo folderRepo;
+    private final MaterialService materialService;
+    private final MaterialsRepo materialsRepo;
+
+    public MaterialsController(AuthorizationCheck authorizationCheck,
+                               FolderRepo folderRepo,
+                               MaterialService materialService,
+                               MaterialsRepo materialsRepo) {
+        this.authorizationCheck = authorizationCheck;
+        this.folderRepo = folderRepo;
+        this.materialService = materialService;
+        this.materialsRepo = materialsRepo;
+    }
 
     @Operation(summary = "Add a new material", tags = {"4. Materials Management"})
     @PostMapping(value = "/add-material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

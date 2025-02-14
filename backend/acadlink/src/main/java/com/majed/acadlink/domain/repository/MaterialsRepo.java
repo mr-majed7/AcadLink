@@ -1,4 +1,4 @@
-package com.majed.acadlink.repository;
+package com.majed.acadlink.domain.repository;
 
 import com.majed.acadlink.domain.entitie.Materials;
 import com.majed.acadlink.enums.MaterialType;

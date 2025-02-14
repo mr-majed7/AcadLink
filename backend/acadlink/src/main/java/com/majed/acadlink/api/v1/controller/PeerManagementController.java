@@ -13,7 +13,6 @@ import com.majed.acadlink.utility.GetUserUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,17 +26,18 @@ import java.util.UUID;
 @Slf4j
 @Tag(name = "5. Peer Management", description = "Endpoints to manage peers and search for users")
 public class PeerManagementController {
-    @Autowired
-    private PeersRepo peersRepo;
+    private final PeersRepo peersRepo;
+    private final AuthorizationCheck authorizationCheck;
+    private final PeersManagementService peersManagementService;
+    private final GetUserUtil getUserUtil;
 
-    @Autowired
-    private AuthorizationCheck authorizationCheck;
-
-    @Autowired
-    private PeersManagementService peersManagementService;
-
-    @Autowired
-    private GetUserUtil getUserUtil;
+    public PeerManagementController(PeersRepo peersRepo, AuthorizationCheck authorizationCheck,
+                                    PeersManagementService peersManagementService, GetUserUtil getUserUtil) {
+        this.peersRepo = peersRepo;
+        this.authorizationCheck = authorizationCheck;
+        this.peersManagementService = peersManagementService;
+        this.getUserUtil = getUserUtil;
+    }
 
     @Operation(summary = "Search users", tags = {"5. Peer Management"})
     @GetMapping("search-user/{entry}")

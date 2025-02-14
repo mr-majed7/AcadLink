@@ -1,16 +1,19 @@
 package com.majed.acadlink.utility;
 
-import com.majed.acadlink.domain.entitie.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
+
+import com.majed.acadlink.domain.entitie.User;
+
 @Component
 public class AuthorizationCheck {
-    @Autowired
-    private GetUserUtil getUserUtil;
+    private final GetUserUtil getUserUtil;
+
+    public AuthorizationCheck(GetUserUtil getUserUtil) {
+        this.getUserUtil = getUserUtil;
+    }
 
     public boolean checkAuthorization(UUID id) {
         Optional<User> current = getUserUtil.getAuthenticatedUser();

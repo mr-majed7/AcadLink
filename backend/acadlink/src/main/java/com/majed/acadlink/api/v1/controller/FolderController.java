@@ -1,6 +1,7 @@
 package com.majed.acadlink.api.v1.controller;
 
 import com.majed.acadlink.domain.entitie.Folder;
+import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
@@ -10,7 +11,6 @@ import com.majed.acadlink.utility.AuthorizationCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +24,16 @@ import java.util.UUID;
 @RequestMapping("/folder")
 @Slf4j
 public class FolderController {
-    @Autowired
-    private com.majed.acadlink.repository.FolderRepo folderRepo;
-    @Autowired
-    private FolderService folderService;
-    @Autowired
-    private AuthorizationCheck authorizationCheck;
+    private final FolderService folderService;
+    private final AuthorizationCheck authorizationCheck;
+    private final FolderRepo folderRepo;
+
+    public FolderController(FolderService folderService, AuthorizationCheck authorizationCheck,
+                            FolderRepo folderRepo) {
+        this.folderService = folderService;
+        this.authorizationCheck = authorizationCheck;
+        this.folderRepo = folderRepo;
+    }
 
     @Operation(summary = "Create a new folder", tags = {"3. Folder Management"})
     @PostMapping("/create")
