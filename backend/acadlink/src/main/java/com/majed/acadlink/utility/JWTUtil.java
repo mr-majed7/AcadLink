@@ -32,13 +32,16 @@ public class JWTUtil {
      * Extracts the username from the provided JWT token.
      *
      * @param token the JWT token
-     *              public String extractUsername(String token) {
-     *              Claims claims = extractAllClaims(token);
-     *              return claims.getSubject();
-     *              }
-     *              <p>
-     *              /**
-     *              Extracts the expiration date from the provided JWT token.
+     * @return the username extracted from the token
+     */
+    public String extractUsername(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.getSubject();
+    }
+
+    /**
+     * Extracts the expiration date from the provided JWT token.
+     *
      * @param token the JWT token
      * @return the expiration date of the token
      */
