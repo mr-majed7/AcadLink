@@ -1,41 +1,43 @@
 package com.majed.acadlink.api.v1.controller;
 
-import org.springframework.http.HttpStatus;
+import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.user.UserResponseDTO;
+import com.majed.acadlink.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.vavr.control.Either;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.majed.acadlink.domain.entitie.User;
-import com.majed.acadlink.dto.user.UserResponseDTO;
-import com.majed.acadlink.service.UserService;
-import com.majed.acadlink.utility.GetUserUtil;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+/**
+ * Controller for user profile management endpoints.
+ */
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("user")
 @Tag(name = "2. Profile Management")
 public class UserController {
     private final UserService userService;
-    private final GetUserUtil getUserUtil;
 
-    public UserController(UserService userService, GetUserUtil getUserUtil) {
+    /**
+     * Constructor for UserController.
+     *
+     * @param userService the user service
+     */
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.getUserUtil = getUserUtil;
     }
 
+    /**
+     * Retrieves the user information.
+     *
+     * @return the response entity containing either an error response or the user response
+     */
     @GetMapping("get-user")
-    public ResponseEntity<UserResponseDTO> getUser() {
-        User user = getUserUtil.getAuthenticatedUser().get();
-
-        UserResponseDTO response = new UserResponseDTO(user.getId(),
-                user.getFirstName(), user.getLastName(), user.getInstitute(), user.getEmail(),
-                user.getUsername(), user.getCreatedAt()
-        );
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<Either<ErrorResponseDTO, UserResponseDTO>> getUser() {
+        return userService.findUser();
     }
 
 }
