@@ -1,127 +1,99 @@
 package com.majed.acadlink.api.v1.controller;
 
-
-import com.majed.acadlink.domain.entitie.Folder;
-import com.majed.acadlink.domain.entitie.Materials;
-import com.majed.acadlink.domain.repository.FolderRepo;
-import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.service.MaterialService;
-import com.majed.acadlink.utility.AuthorizationCheck;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Controller for managing materials.
+ */
 @RestController
 @RequestMapping("/material")
 @Slf4j
 @Tag(name = "4. Materials Management", description = "Endpoints for managing materials")
 public class MaterialsController {
-    private final AuthorizationCheck authorizationCheck;
-    private final FolderRepo folderRepo;
     private final MaterialService materialService;
-    private final MaterialsRepo materialsRepo;
 
-    public MaterialsController(AuthorizationCheck authorizationCheck,
-                               FolderRepo folderRepo,
-                               MaterialService materialService,
-                               MaterialsRepo materialsRepo) {
-        this.authorizationCheck = authorizationCheck;
-        this.folderRepo = folderRepo;
+    /**
+     * Constructor for MaterialsController.
+     */
+    public MaterialsController(MaterialService materialService) {
         this.materialService = materialService;
-        this.materialsRepo = materialsRepo;
     }
 
+    /**
+     * Adds a new material.
+     *
+     * @param materialData the data for the new material
+     * @return the response entity containing the added material or an error status
+     */
     @Operation(summary = "Add a new material", tags = {"4. Materials Management"})
     @PostMapping(value = "/add-material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<MaterialResponseDTO> addMaterials(@ModelAttribute MaterialAddDTO materialData) {
-        try {
-            MaterialResponseDTO addedMaterial = materialService.saveMaterial(materialData);
-            return new ResponseEntity<>(addedMaterial, HttpStatus.CREATED);
-        } catch (Exception e) {
-            log.error(e.toString());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return materialService.saveMaterial(materialData);
     }
 
+    /**
+     * Retrieves a material by ID.
+     *
+     * @param id the ID of the material to retrieve
+     * @return the response entity containing the material or an error status
+     */
     @Operation(summary = "Get material by ID", tags = {"4. Materials Management"})
     @GetMapping("/get-material-by-id/{id}")
     public ResponseEntity<MaterialResponseDTO> getMaterial(@PathVariable UUID id) {
-        MaterialResponseDTO response = materialService.findMaterial(id);
-
-        if (response != null) {
-            Folder folder = folderRepo.findById(response.getFolderId()).get();
-            if (authorizationCheck.checkAuthorization(folder.getUser().getId())) {
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return materialService.findMaterial(id);
     }
 
+    /**
+     * Retrieves materials by type and folder ID.
+     *
+     * @param type     the type of the materials to retrieve
+     * @param folderId the ID of the folder containing the materials
+     * @return the response entity containing the list of materials or an error status
+     */
     @Operation(summary = "Get materials by type and folder ID", tags = {"4. Materials Management"})
     @GetMapping("/get-materials-by-type/{type}/{folder-id}")
     public ResponseEntity<List<MaterialResponseDTO>> getMaterialByType(@PathVariable MaterialType type,
                                                                        @PathVariable("folder-id") UUID folderId) {
-        Optional<Folder> folder = folderRepo.findById(folderId);
-        if (folder.isPresent()) {
-            if (authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
-                List<MaterialResponseDTO> materials = materialService.findMaterialByType(type, folderId);
-                return new ResponseEntity<>(materials, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return materialService.findMaterialsByType(type, folderId);
     }
 
+    /**
+     * Updates a material by ID.
+     *
+     * @param id      the ID of the material to update
+     * @param newData the new data for the material
+     * @return the response entity containing the updated material or an error status
+     * @throws IOException if an I/O error occurs
+     */
     @Operation(summary = "Update material by ID", tags = {"4. Materials Management"})
     @PutMapping(value = "/update-material/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<MaterialResponseDTO> updateMaterial(@PathVariable UUID id, @ModelAttribute MaterialAddDTO newData) throws IOException {
-        Optional<Materials> current = materialsRepo.findById(id);
-
-        if (current.isPresent()) {
-            Folder folder = folderRepo.findById(current.get().getFolder().getId()).get();
-            if (authorizationCheck.checkAuthorization(folder.getUser().getId())) {
-                MaterialResponseDTO response = materialService.updateMaterial(current.get(), newData);
-                return new ResponseEntity<>(response, HttpStatus.CREATED);
-            } else {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<MaterialResponseDTO> updateMaterial(@PathVariable UUID id,
+                                                              @ModelAttribute MaterialAddDTO newData) throws IOException {
+        return materialService.updateMaterial(id, newData);
     }
 
+    /**
+     * Deletes a material by ID.
+     *
+     * @param id the ID of the material to delete
+     * @return the response entity containing the deletion status
+     */
     @Operation(summary = "Delete material by ID", tags = {"4. Materials Management"})
     @DeleteMapping("/delete-material/{id}")
     public ResponseEntity<Boolean> deleteMaterial(@PathVariable UUID id) {
-        Optional<Materials> material = materialsRepo.findById(id);
-
-        if (material.isPresent()) {
-            Folder folder = folderRepo.findById(material.get().getFolder().getId()).get();
-            if (authorizationCheck.checkAuthorization(folder.getUser().getId())) {
-                materialsRepo.delete(material.get());
-                return new ResponseEntity<>(true, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return materialService.deleteMaterial(id);
     }
 }

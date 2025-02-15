@@ -1,12 +1,17 @@
 package com.majed.acadlink.service;
 
+import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
+import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.SaveMaterialUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,49 +23,129 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Service class for managing materials.
+ */
 @Service
 @Slf4j
+
 public class MaterialService {
+    private final FolderRepo folderRepo;
     private final MaterialsRepo materialsRepo;
     private final SaveMaterialUtil saveMaterialUtil;
+    private final AuthorizationCheck authorizationCheck;
 
+    /**
+     * Constructor for MaterialService.
+     *
+     * @param folderRepo         the folder repository
+     * @param materialsRepo      the materials repository
+     * @param saveMaterialUtil   utility to save material files and links
+     * @param authorizationCheck utility to check user authorization
+     */
     public MaterialService(
+            FolderRepo folderRepo,
             MaterialsRepo materialsRepo,
-            SaveMaterialUtil saveMaterialUtil) {
+            SaveMaterialUtil saveMaterialUtil,
+            AuthorizationCheck authorizationCheck
+    ) {
+        this.folderRepo = folderRepo;
         this.materialsRepo = materialsRepo;
         this.saveMaterialUtil = saveMaterialUtil;
+        this.authorizationCheck = authorizationCheck;
     }
 
-    public MaterialResponseDTO saveMaterial(MaterialAddDTO materialData) {
+    /**
+     * Saves a new material.
+     *
+     * @param materialData the data for the new material
+     * @return the response entity containing the saved material or an error status
+     */
+    public ResponseEntity<MaterialResponseDTO> saveMaterial(MaterialAddDTO materialData) {
         try {
-            log.debug(materialData.getFile().toString());
             if (materialData.getFile() != null && !materialData.getFile().isEmpty()) {
-                return saveMaterialUtil.saveMaterialFile(materialData);
+                MaterialResponseDTO savedMaterial = saveMaterialUtil.saveMaterialFile(materialData);
+                return new ResponseEntity<>(savedMaterial, HttpStatus.CREATED);
             } else if (materialData.getLink() != null && !materialData.getLink().isEmpty()) {
-                return saveMaterialUtil.saveMaterialLink(materialData);
+                MaterialResponseDTO savedMaterial = saveMaterialUtil.saveMaterialLink(materialData);
+                return new ResponseEntity<>(savedMaterial, HttpStatus.CREATED);
             } else {
-                return null;
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
             log.error(e.toString());
-            return null;
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-
-    public MaterialResponseDTO findMaterial(UUID id) {
+    /**
+     * Finds a material by ID.
+     *
+     * @param id the ID of the material to find
+     * @return the response entity containing the material or an error status
+     */
+    public ResponseEntity<MaterialResponseDTO> findMaterial(UUID id) {
         Optional<Materials> material = materialsRepo.findById(id);
-        return material.map(value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
+        if (material.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
+        if (folder.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        MaterialResponseDTO materialResponse = material.map(value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
                 value.getType(), value.getPrivacy(), value.getFolder().getId())).orElse(null);
+        return new ResponseEntity<>(materialResponse, HttpStatus.OK);
     }
 
-    public List<MaterialResponseDTO> findMaterialByType(MaterialType type, UUID folderId) {
+    /**
+     * Finds materials by type and folder ID.
+     *
+     * @param type     the type of the materials to find
+     * @param folderId the ID of the folder containing the materials
+     * @return the response entity containing the list of materials or an error status
+     */
+    public ResponseEntity<List<MaterialResponseDTO>> findMaterialsByType(MaterialType type, UUID folderId) {
         List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
-        return materials.stream().map(value -> new MaterialResponseDTO(value.getId(), value.getName(),
+        Optional<Folder> folder = folderRepo.findById(folderId);
+        if (folder.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<MaterialResponseDTO> materialList = materials.stream().map(value -> new MaterialResponseDTO(value.getId(), value.getName(),
                 value.getLink(), value.getType(), value.getPrivacy(), value.getFolder().getId())).toList();
+
+        return new ResponseEntity<>(materialList, HttpStatus.OK);
     }
 
-    public MaterialResponseDTO updateMaterial(Materials current, MaterialAddDTO newData) throws IOException {
+    /**
+     * Updates a material by ID.
+     *
+     * @param materialId the ID of the material to update
+     * @param newData    the new data for the material
+     * @return the response entity containing the updated material or an error status
+     * @throws IOException if an I/O error occurs
+     */
+    public ResponseEntity<MaterialResponseDTO> updateMaterial(UUID materialId, MaterialAddDTO newData) throws IOException {
+        Optional<Materials> material = materialsRepo.findById(materialId);
+        if (material.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
+        if (folder.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        Materials current = material.get();
+
         if (newData.getName() != null) {
             current.setName(newData.getName());
         }
@@ -83,11 +168,33 @@ public class MaterialService {
         }
 
         materialsRepo.save(current);
-        return new MaterialResponseDTO(current.getId(), current.getName(), current.getLink(),
+        MaterialResponseDTO response = new MaterialResponseDTO(current.getId(), current.getName(), current.getLink(),
                 current.getType(), current.getPrivacy(), current.getFolder().getId()
-
         );
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    /**
+     * Deletes a material by ID.
+     *
+     * @param id the ID of the material to delete
+     * @return the response entity containing the deletion status
+     */
+    public ResponseEntity<Boolean> deleteMaterial(UUID id) {
+        Optional<Materials> material = materialsRepo.findById(id);
+
+        if (material.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
+        if (folder.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        materialsRepo.delete(material.get());
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
 }
-
