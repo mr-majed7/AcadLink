@@ -1,116 +1,109 @@
 package com.majed.acadlink.api.v1.controller;
 
-import com.majed.acadlink.domain.entitie.Peers;
-import com.majed.acadlink.domain.entitie.User;
-import com.majed.acadlink.domain.repository.PeersRepo;
+import com.majed.acadlink.dto.ErrorResponseDTO;
 import com.majed.acadlink.dto.peers.PeerInfoDTO;
 import com.majed.acadlink.dto.peers.SearchResultDTO;
-import com.majed.acadlink.enums.PeerStatus;
 import com.majed.acadlink.enums.ReqType;
 import com.majed.acadlink.service.PeersManagementService;
-import com.majed.acadlink.utility.AuthorizationCheck;
-import com.majed.acadlink.utility.GetUserUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
+
+/**
+ * Controller for managing peers and searching for users.
+ */
 @RestController
 @RequestMapping("peers")
 @Slf4j
 @Tag(name = "5. Peer Management", description = "Endpoints to manage peers and search for users")
 public class PeerManagementController {
-    private final PeersRepo peersRepo;
-    private final AuthorizationCheck authorizationCheck;
     private final PeersManagementService peersManagementService;
-    private final GetUserUtil getUserUtil;
 
-    public PeerManagementController(PeersRepo peersRepo, AuthorizationCheck authorizationCheck,
-                                    PeersManagementService peersManagementService, GetUserUtil getUserUtil) {
-        this.peersRepo = peersRepo;
-        this.authorizationCheck = authorizationCheck;
+    /**
+     * Constructor for PeerManagementController.
+     *
+     * @param peersManagementService the peers management service
+     */
+    public PeerManagementController(
+            PeersManagementService peersManagementService) {
         this.peersManagementService = peersManagementService;
-        this.getUserUtil = getUserUtil;
     }
 
+    /**
+     * Searches for users based on the provided entry.
+     *
+     * @param entry the search entry
+     * @return the response entity containing the search results or an error status
+     */
     @Operation(summary = "Search users", tags = {"5. Peer Management"})
     @GetMapping("search-user/{entry}")
-    public ResponseEntity<List<SearchResultDTO>> searchUsers(@PathVariable String entry) {
-        Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
-        List<SearchResultDTO> users = peersManagementService.searchUsers(entry, currentUser.get().getId());
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    public ResponseEntity<Either<ErrorResponseDTO, List<SearchResultDTO>>> searchUsers(@PathVariable String entry) {
+        return peersManagementService.searchUsers(entry);
     }
 
+    /**
+     * Sends a peer request to the specified user.
+     *
+     * @param userId the ID of the user to send the peer request to
+     * @return the response entity containing the status of the request or an error status
+     */
     @Operation(summary = "Send peer request", tags = {"5. Peer Management"})
     @PostMapping("send-peer-request/{userId}")
-    public ResponseEntity<Boolean> addPeer(@PathVariable UUID userId) {
-        Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
-        if (peersManagementService.addPeer(currentUser.get().getId(), userId)) {
-            return new ResponseEntity<Boolean>(true, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> addPeer(@PathVariable UUID userId) {
+        return peersManagementService.addPeer(userId);
     }
 
+    /**
+     * Retrieves peer requests based on the specified type.
+     *
+     * @param type the type of the peer requests to retrieve
+     * @return the response entity containing the list of peer requests or an error status
+     */
     @Operation(summary = "Get peer requests", tags = {"5. Peer Management"})
     @GetMapping("get-peer-requests/{type}")
-    public ResponseEntity<List<PeerInfoDTO>> getRequests(@PathVariable ReqType type) {
-        Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
-        List<PeerInfoDTO> requestList = peersManagementService.getRequests(currentUser.get().getId(), type);
-        return new ResponseEntity<>(requestList, HttpStatus.OK);
+    public ResponseEntity<Either<ErrorResponseDTO, List<PeerInfoDTO>>> getRequests(@PathVariable ReqType type) {
+        return peersManagementService.getRequests(type);
     }
 
+    /**
+     * Accepts a peer request with the specified request ID.
+     *
+     * @param reqId the ID of the peer request to accept
+     * @return the response entity containing the status of the acceptance or an error status
+     */
     @Operation(summary = "Accept peer request", tags = {"5. Peer Management"})
     @PutMapping("accept-peer-request/{reqId}")
-    public ResponseEntity<Boolean> acceptRequest(@PathVariable UUID reqId) {
-        Optional<Peers> request = peersRepo.findById(reqId);
-        if (request.isEmpty()) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        } else if (request.get().getStatus() != PeerStatus.PENDING) {
-            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-        } else {
-            if (authorizationCheck.checkAuthorization(request.get().getUser2().getId())) {
-                request.get().setStatus(PeerStatus.ACCEPTED);
-                peersRepo.save(request.get());
-                return new ResponseEntity<>(true, HttpStatus.CREATED);
-            } else {
-                return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
-            }
-        }
+    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> acceptRequest(@PathVariable UUID reqId) {
+        return peersManagementService.acceptRequest(reqId);
     }
 
+    /**
+     * Retrieves the list of peers for the authenticated user.
+     *
+     * @return the response entity containing the list of peers or an error status
+     */
     @Operation(summary = "Get peers", tags = {"5. Peer Management"})
     @GetMapping("get-peers")
-    public ResponseEntity<List<PeerInfoDTO>> getPeers() {
-        User currentUser = getUserUtil.getAuthenticatedUser().get();
-        List<PeerInfoDTO> peersList = peersManagementService.findPeers(currentUser.getId());
-        return new ResponseEntity<>(peersList, HttpStatus.OK);
+    public ResponseEntity<Either<ErrorResponseDTO, List<PeerInfoDTO>>> getPeers() {
+        return peersManagementService.findPeers();
     }
 
+    /**
+     * Removes a peer with the specified peer ID.
+     *
+     * @param peerId the ID of the peer to remove
+     * @return the response entity containing the status of the removal or an error status
+     */
     @Operation(summary = "Remove peer", tags = {"5. Peer Management"})
     @DeleteMapping("remove-peer/{peerId}")
-    public ResponseEntity<Boolean> removePeer(@PathVariable UUID peerId) {
-        Optional<Peers> peer = peersRepo.findById(peerId);
-        if (peer.isEmpty()) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-        } else {
-            User user1 = peer.get().getUser1();
-            User user2 = peer.get().getUser2();
-            if (authorizationCheck.checkAuthorization(user1.getId()) ||
-                    authorizationCheck.checkAuthorization(user2.getId())) {
-                peersRepo.delete(peer.get());
-                return new ResponseEntity<>(true, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
-            }
-        }
+    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> removePeer(@PathVariable UUID peerId) {
+        return peersManagementService.removePeer(peerId);
     }
 }
-
-
