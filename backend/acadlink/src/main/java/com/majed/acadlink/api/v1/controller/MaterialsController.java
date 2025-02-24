@@ -101,4 +101,12 @@ public class MaterialsController {
     public ResponseEntity<Either<ErrorResponseDTO, Boolean>> deleteMaterial(@PathVariable UUID id) {
         return materialService.deleteMaterial(id);
     }
+
+    @Operation(summary = "Search for Materials", tags = {"4. Materials Management"})
+    @GetMapping("/search-materials")
+    public ResponseEntity<Object> searchMaterials(
+            @RequestParam String keyWords
+    ) {
+        return materialService.findMaterials(keyWords);
+    }
 }

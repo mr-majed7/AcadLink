@@ -2,13 +2,16 @@ package com.majed.acadlink.service;
 
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.ErrorResponseDTO;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
+import com.majed.acadlink.enums.Privacy;
 import com.majed.acadlink.utility.AuthorizationCheck;
+import com.majed.acadlink.utility.GetUserUtil;
 import com.majed.acadlink.utility.SaveMaterialUtil;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +40,7 @@ public class MaterialService {
     private final MaterialsRepo materialsRepo;
     private final SaveMaterialUtil saveMaterialUtil;
     private final AuthorizationCheck authorizationCheck;
+    private final GetUserUtil getUserUtil;
 
     /**
      * Constructor for MaterialService.
@@ -44,17 +49,20 @@ public class MaterialService {
      * @param materialsRepo      the materials repository
      * @param saveMaterialUtil   utility to save material files and links
      * @param authorizationCheck utility to check user authorization
+     * @param getUserUtil        utility to get current user
      */
     public MaterialService(
             FolderRepo folderRepo,
             MaterialsRepo materialsRepo,
             SaveMaterialUtil saveMaterialUtil,
-            AuthorizationCheck authorizationCheck
+            AuthorizationCheck authorizationCheck,
+            GetUserUtil getUserUtil
     ) {
         this.folderRepo = folderRepo;
         this.materialsRepo = materialsRepo;
         this.saveMaterialUtil = saveMaterialUtil;
         this.authorizationCheck = authorizationCheck;
+        this.getUserUtil = getUserUtil;
     }
 
     /**
@@ -227,10 +235,47 @@ public class MaterialService {
                     HttpStatus.NOT_FOUND);
         }
         if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(Either.left(new ErrorResponseDTO("Not Authorized",
+                    HttpStatus.FORBIDDEN.value())),
+                    HttpStatus.FORBIDDEN);
         }
         materialsRepo.delete(material.get());
         return new ResponseEntity<>(Either.right(true), HttpStatus.OK);
     }
 
+    public ResponseEntity<Object> findMaterials(
+            String keyWords
+    ) {
+        Optional<User> user = getUserUtil.getAuthenticatedUser();
+
+        if (user.isEmpty()) {
+            return new ResponseEntity<>(
+                    new ErrorResponseDTO("No User Found", HttpStatus.BAD_REQUEST.value()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        List<MaterialResponseDTO> materials = new ArrayList<>();
+
+        materials.addAll(
+                materialsRepo.searchPublicMaterials(keyWords, Privacy.PUBLIC).stream().map(
+                        value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
+                                value.getType(), value.getPrivacy(), value.getFolder().getId())).toList());
+
+
+        materials.addAll(
+                materialsRepo.searchPeerMaterials(keyWords, user.get().getId(), Privacy.PEERS).stream().map(
+                        value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
+                                value.getType(), value.getPrivacy(), value.getFolder().getId())).toList());
+
+
+        materials.addAll(
+                materialsRepo.searchInstitutionalMaterials(keyWords, user.get().getInstitute(), Privacy.INSTITUTIONAL).
+                        stream().map(
+                                value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
+                                        value.getType(), value.getPrivacy(), value.getFolder().getId())).toList());
+
+
+        return new ResponseEntity<>(materials, HttpStatus.OK);
+    }
 }
