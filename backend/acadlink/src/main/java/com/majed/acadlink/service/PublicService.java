@@ -1,6 +1,7 @@
 package com.majed.acadlink.service;
 
 import com.majed.acadlink.domain.repository.UserRepo;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.ErrorResponseDTO;
 import com.majed.acadlink.dto.user.UserLoginDTO;
 import com.majed.acadlink.dto.user.UserResponseDTO;
@@ -52,7 +53,7 @@ public class PublicService {
      * @param userData the user sign-up data
      * @return the response entity containing the user response or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, UserResponseDTO>> addUser(UserSignUpDTO userData) {
+    public ResponseEntity<Object> addUser(UserSignUpDTO userData) {
         if (userDetailsService.loadUserByUsername(userData.getEmail()) != null) {
             return new ResponseEntity<>(
                     Either.left(new ErrorResponseDTO("User exists with this email",
@@ -82,33 +83,27 @@ public class PublicService {
      * @param userData the user login data
      * @return the response entity containing the JWT token or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, String>> login(UserLoginDTO userData) {
+    public ResponseEntity<ApiResponse<String>> login(UserLoginDTO userData) {
         try {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userData.getUsernameorEmail());
 
             if (userDetails == null) {
-                return new ResponseEntity<>(
-                        Either.left(new ErrorResponseDTO("Invalid username or email",
-                                HttpStatus.BAD_REQUEST.value())),
-                        HttpStatus.BAD_REQUEST);
+                return ApiResponse.error("User not found", HttpStatus.NOT_FOUND);
             }
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(userData.getUsernameorEmail(), userData.getPassword())
             );
+
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
-            return new ResponseEntity<>(Either.right(jwt), HttpStatus.OK);
+
+            return ApiResponse.success(jwt, HttpStatus.OK);
+
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("Incorrect Password",
-                            HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("Incorrect Password", HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             log.error(e.toString());
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("Unable to Process Request",
-                            HttpStatus.INTERNAL_SERVER_ERROR.value())),
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
+            return ApiResponse.error("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

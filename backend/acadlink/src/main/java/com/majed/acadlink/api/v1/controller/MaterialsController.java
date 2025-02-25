@@ -1,13 +1,12 @@
 package com.majed.acadlink.api.v1.controller;
 
-import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.service.MaterialService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +41,7 @@ public class MaterialsController {
      */
     @Operation(summary = "Add a new material", tags = {"4. Materials Management"})
     @PostMapping(value = "/add-material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Either<ErrorResponseDTO, MaterialResponseDTO>> addMaterials(
+    public ResponseEntity<ApiResponse<MaterialResponseDTO>> addMaterials(
             @ModelAttribute MaterialAddDTO materialData) {
         return materialService.saveMaterial(materialData);
     }
@@ -55,7 +54,7 @@ public class MaterialsController {
      */
     @Operation(summary = "Get material by ID", tags = {"4. Materials Management"})
     @GetMapping("/get-material-by-id/{id}")
-    public ResponseEntity<Either<ErrorResponseDTO, MaterialResponseDTO>> getMaterial(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<MaterialResponseDTO>> getMaterial(@PathVariable UUID id) {
         return materialService.findMaterial(id);
     }
 
@@ -68,7 +67,7 @@ public class MaterialsController {
      */
     @Operation(summary = "Get materials by type and folder ID", tags = {"4. Materials Management"})
     @GetMapping("/get-materials-by-type/{type}/{folder-id}")
-    public ResponseEntity<Either<ErrorResponseDTO, List<MaterialResponseDTO>>> getMaterialByType(
+    public ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> getMaterialByType(
             @PathVariable MaterialType type,
             @PathVariable("folder-id") UUID folderId) {
         return materialService.findMaterialsByType(type, folderId);
@@ -84,7 +83,7 @@ public class MaterialsController {
      */
     @Operation(summary = "Update material by ID", tags = {"4. Materials Management"})
     @PutMapping(value = "/update-material/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Either<ErrorResponseDTO, MaterialResponseDTO>> updateMaterial(
+    public ResponseEntity<ApiResponse<MaterialResponseDTO>> updateMaterial(
             @PathVariable UUID id,
             @ModelAttribute MaterialAddDTO newData) throws IOException {
         return materialService.updateMaterial(id, newData);
@@ -98,13 +97,13 @@ public class MaterialsController {
      */
     @Operation(summary = "Delete material by ID", tags = {"4. Materials Management"})
     @DeleteMapping("/delete-material/{id}")
-    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> deleteMaterial(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<Boolean>> deleteMaterial(@PathVariable UUID id) {
         return materialService.deleteMaterial(id);
     }
 
     @Operation(summary = "Search for Materials", tags = {"4. Materials Management"})
-    @GetMapping("/search-materials")
-    public ResponseEntity<Object> searchMaterials(
+    @GetMapping(value = "/search-materials", produces = {"application/json"})
+    public ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> searchMaterials(
             @RequestParam String keyWords
     ) {
         return materialService.findMaterials(keyWords);
