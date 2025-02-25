@@ -3,7 +3,7 @@ package com.majed.acadlink.service;
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
-import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
@@ -11,7 +11,6 @@ import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.GetUserUtil;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +50,7 @@ public class FolderService {
      * @param folderData the data for the new folder
      * @return the response entity containing the added folder or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, AllFolderResponseDTO>> addFolder(FolderCreateDTO folderData) {
+    public ResponseEntity<ApiResponse<AllFolderResponseDTO>> addFolder(FolderCreateDTO folderData) {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
         if (user.isPresent()) {
             Folder folder = new Folder();
@@ -62,12 +61,10 @@ public class FolderService {
             AllFolderResponseDTO response = new AllFolderResponseDTO(
                     addedFolder.get().getId(), addedFolder.get().getName(),
                     addedFolder.get().getCreatedAt(), addedFolder.get().getPrivacy());
-            return new ResponseEntity<>(Either.right(response), HttpStatus.OK);
+            return ApiResponse.success(response, HttpStatus.CREATED);
         } else {
             log.error("User does not exists");
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User Not Found", HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -76,7 +73,7 @@ public class FolderService {
      *
      * @return the response entity containing the list of all folders or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, List<AllFolderResponseDTO>>> getAllFolders() {
+    public ResponseEntity<ApiResponse<List<AllFolderResponseDTO>>> getAllFolders() {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
 
         if (user.isPresent()) {
@@ -85,11 +82,9 @@ public class FolderService {
                     .map(folder -> new AllFolderResponseDTO(folder.getId(), folder.getName(),
                             folder.getCreatedAt(), folder.getPrivacy()))
                     .toList();
-            return new ResponseEntity<>(Either.right(folderList), HttpStatus.OK);
+            return ApiResponse.success(folderList, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User Not Found", HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -99,17 +94,13 @@ public class FolderService {
      * @param folderId the ID of the folder to retrieve
      * @return the response entity containing the folder or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, FolderResponseDTO>> getFolder(UUID folderId) {
+    public ResponseEntity<ApiResponse<FolderResponseDTO>> getFolder(UUID folderId) {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
         if (user.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User Not Found", HttpStatus.BAD_GATEWAY.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
         } else {
             if (!authorizationCheck.checkAuthorization(user.get().getId())) {
-                return new ResponseEntity<>(
-                        Either.left(new ErrorResponseDTO("Not Authorized", HttpStatus.FORBIDDEN.value()))
-                        , HttpStatus.FORBIDDEN);
+                return ApiResponse.error("Not Authorized", HttpStatus.FORBIDDEN);
             } else {
                 Optional<Folder> findFolder = folderRepo.findById(folderId);
                 if (findFolder.isPresent()) {
@@ -121,11 +112,9 @@ public class FolderService {
 
                     FolderResponseDTO folderResponse = new FolderResponseDTO(folder.getId(), folder.getName(),
                             folder.getCreatedAt(), folder.getPrivacy(), materials);
-                    return new ResponseEntity<>(Either.right(folderResponse), HttpStatus.OK);
+                    return ApiResponse.success(folderResponse, HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<>(
-                            Either.left(new ErrorResponseDTO("Folder Not Found", HttpStatus.NOT_FOUND.value())),
-                            HttpStatus.NOT_FOUND);
+                    return ApiResponse.error("Folder not found", HttpStatus.NOT_FOUND);
                 }
             }
         }
@@ -138,30 +127,24 @@ public class FolderService {
      * @param newData  the new data for the folder
      * @return the response entity containing the updated folder or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, UpdateFolderResponseDTO>> updateFolder(
+    public ResponseEntity<ApiResponse<UpdateFolderResponseDTO>> updateFolder(
             UUID folderId,
             FolderCreateDTO newData) {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
         if (user.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User Not Found", HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
         }
 
         if (!authorizationCheck.checkAuthorization(user.get().getId())) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("Not Authorized", HttpStatus.FORBIDDEN.value())),
-                    HttpStatus.FORBIDDEN);
+            return ApiResponse.error("Not authorized", HttpStatus.FORBIDDEN);
         }
 
         return folderRepo.findById(folderId)
                 .map(folder -> {
-                    Either<ErrorResponseDTO, UpdateFolderResponseDTO> result = updateFolderData(folder, newData);
-                    return new ResponseEntity<>(result, result.isRight() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+                    UpdateFolderResponseDTO result = updateFolderData(folder, newData);
+                    return ApiResponse.success(result, HttpStatus.OK);
                 })
-                .orElseGet(() -> new ResponseEntity<>(
-                        Either.left(new ErrorResponseDTO("Folder Not Found",
-                                HttpStatus.NOT_FOUND.value())), HttpStatus.NOT_FOUND));
+                .orElseGet(() -> ApiResponse.error("No folder found", HttpStatus.BAD_REQUEST));
     }
 
     /**
@@ -171,7 +154,7 @@ public class FolderService {
      * @param newData the new data for the folder
      * @return the updated folder data
      */
-    private Either<ErrorResponseDTO, UpdateFolderResponseDTO> updateFolderData(Folder folder, FolderCreateDTO newData) {
+    private UpdateFolderResponseDTO updateFolderData(Folder folder, FolderCreateDTO newData) {
         if (newData.getName() != null) {
             folder.setName(newData.getName());
         }
@@ -180,8 +163,11 @@ public class FolderService {
         }
 
         Folder updatedFolder = folderRepo.save(folder);
-        UpdateFolderResponseDTO response = new UpdateFolderResponseDTO(updatedFolder.getId(),
-                updatedFolder.getName(), updatedFolder.getCreatedAt(), updatedFolder.getPrivacy());
-        return Either.right(response);
+        return new UpdateFolderResponseDTO(
+                updatedFolder.getId(),
+                updatedFolder.getName(),
+                updatedFolder.getCreatedAt(),
+                updatedFolder.getPrivacy()
+        );
     }
 }

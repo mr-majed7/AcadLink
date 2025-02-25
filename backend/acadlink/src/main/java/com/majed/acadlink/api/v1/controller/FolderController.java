@@ -1,6 +1,6 @@
 package com.majed.acadlink.api.v1.controller;
 
-import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
@@ -8,7 +8,6 @@ import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.service.FolderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +42,7 @@ public class FolderController {
      */
     @Operation(summary = "Create a new folder", tags = {"3. Folder Management"})
     @PostMapping("/create")
-    public ResponseEntity<Either<ErrorResponseDTO, AllFolderResponseDTO>> createFolder(@RequestBody FolderCreateDTO folderData) {
+    public ResponseEntity<ApiResponse<AllFolderResponseDTO>> createFolder(@RequestBody FolderCreateDTO folderData) {
         return folderService.addFolder(folderData);
     }
 
@@ -54,7 +53,7 @@ public class FolderController {
      */
     @Operation(summary = "Get all folders", tags = {"3. Folder Management"})
     @GetMapping("/get-all")
-    public ResponseEntity<Either<ErrorResponseDTO, List<AllFolderResponseDTO>>> getAllFolders() {
+    public ResponseEntity<ApiResponse<List<AllFolderResponseDTO>>> getAllFolders() {
         return folderService.getAllFolders();
     }
 
@@ -66,7 +65,7 @@ public class FolderController {
      */
     @Operation(summary = "Get a specific folder by ID", tags = {"3. Folder Management"})
     @GetMapping("/get-folder/{folderId}")
-    public ResponseEntity<Either<ErrorResponseDTO, FolderResponseDTO>> getFolder(@PathVariable UUID folderId) {
+    public ResponseEntity<ApiResponse<FolderResponseDTO>> getFolder(@PathVariable UUID folderId) {
         return folderService.getFolder(folderId);
     }
 
@@ -79,8 +78,8 @@ public class FolderController {
      */
     @Operation(summary = "Update a specific folder by ID", tags = {"3. Folder Management"})
     @PutMapping("/update-folder/{folderId}")
-    public ResponseEntity<Either<ErrorResponseDTO, UpdateFolderResponseDTO>> updateFolder(@PathVariable UUID folderId,
-                                                                                          @RequestBody FolderCreateDTO newData) {
+    public ResponseEntity<ApiResponse<UpdateFolderResponseDTO>> updateFolder(@PathVariable UUID folderId,
+                                                                             @RequestBody FolderCreateDTO newData) {
         return folderService.updateFolder(folderId, newData);
     }
     //WORK ON DELETE FOLDER AFTER FINISHING MATERIAL UPDATE AND DELETE
