@@ -1,13 +1,12 @@
 package com.majed.acadlink.api.v1.controller;
 
-import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.peers.PeerInfoDTO;
 import com.majed.acadlink.dto.peers.SearchResultDTO;
 import com.majed.acadlink.enums.ReqType;
 import com.majed.acadlink.service.PeersManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +43,7 @@ public class PeerManagementController {
      */
     @Operation(summary = "Search users", tags = {"5. Peer Management"})
     @GetMapping("search-user/{entry}")
-    public ResponseEntity<Either<ErrorResponseDTO, List<SearchResultDTO>>> searchUsers(@PathVariable String entry) {
+    public ResponseEntity<ApiResponse<List<SearchResultDTO>>> searchUsers(@PathVariable String entry) {
         return peersManagementService.searchUsers(entry);
     }
 
@@ -56,7 +55,7 @@ public class PeerManagementController {
      */
     @Operation(summary = "Send peer request", tags = {"5. Peer Management"})
     @PostMapping("send-peer-request/{userId}")
-    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> addPeer(@PathVariable UUID userId) {
+    public ResponseEntity<ApiResponse<Boolean>> addPeer(@PathVariable UUID userId) {
         return peersManagementService.addPeer(userId);
     }
 
@@ -68,7 +67,7 @@ public class PeerManagementController {
      */
     @Operation(summary = "Get peer requests", tags = {"5. Peer Management"})
     @GetMapping("get-peer-requests/{type}")
-    public ResponseEntity<Either<ErrorResponseDTO, List<PeerInfoDTO>>> getRequests(@PathVariable ReqType type) {
+    public ResponseEntity<ApiResponse<List<PeerInfoDTO>>> getRequests(@PathVariable ReqType type) {
         return peersManagementService.getRequests(type);
     }
 
@@ -80,7 +79,7 @@ public class PeerManagementController {
      */
     @Operation(summary = "Accept peer request", tags = {"5. Peer Management"})
     @PutMapping("accept-peer-request/{reqId}")
-    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> acceptRequest(@PathVariable UUID reqId) {
+    public ResponseEntity<ApiResponse<Boolean>> acceptRequest(@PathVariable UUID reqId) {
         return peersManagementService.acceptRequest(reqId);
     }
 
@@ -91,7 +90,7 @@ public class PeerManagementController {
      */
     @Operation(summary = "Get peers", tags = {"5. Peer Management"})
     @GetMapping("get-peers")
-    public ResponseEntity<Either<ErrorResponseDTO, List<PeerInfoDTO>>> getPeers() {
+    public ResponseEntity<ApiResponse<List<PeerInfoDTO>>> getPeers() {
         return peersManagementService.findPeers();
     }
 
@@ -103,7 +102,7 @@ public class PeerManagementController {
      */
     @Operation(summary = "Remove peer", tags = {"5. Peer Management"})
     @DeleteMapping("remove-peer/{peerId}")
-    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> removePeer(@PathVariable UUID peerId) {
+    public ResponseEntity<ApiResponse<Boolean>> removePeer(@PathVariable UUID peerId) {
         return peersManagementService.removePeer(peerId);
     }
 }

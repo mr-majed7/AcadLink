@@ -4,14 +4,13 @@ import com.majed.acadlink.domain.entitie.Peers;
 import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.domain.repository.PeersRepo;
 import com.majed.acadlink.domain.repository.UserRepo;
-import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.peers.PeerInfoDTO;
 import com.majed.acadlink.dto.peers.SearchResultDTO;
 import com.majed.acadlink.enums.PeerStatus;
 import com.majed.acadlink.enums.ReqType;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.GetUserUtil;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,12 +57,10 @@ public class PeersManagementService {
      * @param entry the search entry
      * @return the response entity containing the search results or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, List<SearchResultDTO>>> searchUsers(String entry) {
+    public ResponseEntity<ApiResponse<List<SearchResultDTO>>> searchUsers(String entry) {
         Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
         if (currentUser.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User not found", HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("User not found", HttpStatus.BAD_REQUEST);
         }
         List<User> userList = userRepo.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(entry, entry);
         List<SearchResultDTO> users = userList.stream().map(user -> {
@@ -71,7 +68,7 @@ public class PeersManagementService {
             return new SearchResultDTO(user.getId(), user.getFirstName(), user.getLastName(),
                     user.getEmail(), user.getUsername(), user.getInstitute(), peerStatus);
         }).toList();
-        return new ResponseEntity<>(Either.right(users), HttpStatus.OK);
+        return ApiResponse.success(users, HttpStatus.OK);
     }
 
     /**
@@ -97,12 +94,10 @@ public class PeersManagementService {
      * @param user2Id the ID of the user to send the peer request to
      * @return the response entity containing the status of the request or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> addPeer(UUID user2Id) {
+    public ResponseEntity<ApiResponse<Boolean>> addPeer(UUID user2Id) {
         Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
         if (currentUser.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User not found", HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("User not found", HttpStatus.BAD_REQUEST);
         }
         UUID user1Id = currentUser.get().getId();
 
@@ -113,33 +108,24 @@ public class PeersManagementService {
                 Peers peers = new Peers();
                 Optional<User> user2 = userRepo.findById(user2Id);
                 if (user2.isEmpty()) {
-                    return new ResponseEntity<>(
-                            Either.left(new ErrorResponseDTO("User not found", HttpStatus.BAD_REQUEST.value())),
-                            HttpStatus.BAD_REQUEST);
+                    return ApiResponse.error("User2 not found", HttpStatus.BAD_REQUEST);
                 }
 
                 peers.setUser1(currentUser.get());
                 peers.setUser2(user2.get());
                 try {
                     peersRepo.save(peers);
-                    return new ResponseEntity<>(Either.right(true), HttpStatus.CREATED);
+                    return ApiResponse.success(true, HttpStatus.CREATED);
                 } catch (Exception e) {
                     log.error(e.toString());
-                    return new ResponseEntity<>(
-                            Either.left(new ErrorResponseDTO("Internal server error",
-                                    HttpStatus.INTERNAL_SERVER_ERROR.value())),
-                            HttpStatus.INTERNAL_SERVER_ERROR);
+                    return ApiResponse.error("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             }
             case PENDING -> {
-                return new ResponseEntity<>(Either.left(
-                        new ErrorResponseDTO("Request already sent",
-                                HttpStatus.BAD_REQUEST.value())), HttpStatus.BAD_REQUEST);
+                return ApiResponse.error("Request already sent", HttpStatus.BAD_REQUEST);
             }
             default -> {
-                return new ResponseEntity<>(Either.left(
-                        new ErrorResponseDTO("Already connected",
-                                HttpStatus.BAD_REQUEST.value())), HttpStatus.BAD_REQUEST);
+                return ApiResponse.error("Already a peer", HttpStatus.BAD_REQUEST);
             }
         }
     }
@@ -150,12 +136,10 @@ public class PeersManagementService {
      * @param type the type of the peer requests to retrieve
      * @return the response entity containing the list of peer requests or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, List<PeerInfoDTO>>> getRequests(ReqType type) {
+    public ResponseEntity<ApiResponse<List<PeerInfoDTO>>> getRequests(ReqType type) {
         Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
         if (currentUser.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User not found", HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("User not found", HttpStatus.BAD_REQUEST);
         }
         UUID userId = currentUser.get().getId();
 
@@ -173,7 +157,7 @@ public class PeersManagementService {
             );
         }).toList();
 
-        return new ResponseEntity<>(Either.right(requestList), HttpStatus.OK);
+        return ApiResponse.success(requestList, HttpStatus.OK);
     }
 
     /**
@@ -181,12 +165,10 @@ public class PeersManagementService {
      *
      * @return the response entity containing the list of peers or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, List<PeerInfoDTO>>> findPeers() {
+    public ResponseEntity<ApiResponse<List<PeerInfoDTO>>> findPeers() {
         Optional<User> currentUser = getUserUtil.getAuthenticatedUser();
         if (currentUser.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User not found", HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+            return ApiResponse.error("User not found", HttpStatus.BAD_REQUEST);
         }
         UUID userId = currentUser.get().getId();
 
@@ -203,7 +185,7 @@ public class PeersManagementService {
                     , user.getLastName(), user.getEmail(), user.getInstitute(), user.getUsername()
             );
         }).toList();
-        return new ResponseEntity<>(Either.right(peerList), HttpStatus.OK);
+        return ApiResponse.success(peerList, HttpStatus.OK);
     }
 
     /**
@@ -212,23 +194,19 @@ public class PeersManagementService {
      * @param reqId the ID of the peer request to accept
      * @return the response entity containing the status of the acceptance or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> acceptRequest(UUID reqId) {
+    public ResponseEntity<ApiResponse<Boolean>> acceptRequest(UUID reqId) {
         Optional<Peers> peer = peersRepo.findById(reqId);
         if (peer.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("Peer not found", HttpStatus.NOT_FOUND.value())),
-                    HttpStatus.NOT_FOUND);
+            return ApiResponse.error("Peer not found", HttpStatus.NOT_FOUND);
         }
         User user1 = peer.get().getUser1();
         User user2 = peer.get().getUser2();
         if (authorizationCheck.checkAuthorization(user1.getId()) || authorizationCheck.checkAuthorization(user2.getId())) {
             peer.get().setStatus(PeerStatus.ACCEPTED);
             peersRepo.save(peer.get());
-            return new ResponseEntity<>(Either.right(true), HttpStatus.OK);
+            return ApiResponse.success(true, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("Forbidden", HttpStatus.FORBIDDEN.value())),
-                    HttpStatus.FORBIDDEN);
+            return ApiResponse.error("Not authorized", HttpStatus.FORBIDDEN);
         }
     }
 
@@ -238,23 +216,19 @@ public class PeersManagementService {
      * @param peerId the ID of the peer to remove
      * @return the response entity containing the status of the removal or an error status
      */
-    public ResponseEntity<Either<ErrorResponseDTO, Boolean>> removePeer(UUID peerId) {
+    public ResponseEntity<ApiResponse<Boolean>> removePeer(UUID peerId) {
         Optional<Peers> peer = peersRepo.findById(peerId);
         if (peer.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("Peer not found", HttpStatus.NOT_FOUND.value())),
-                    HttpStatus.NOT_FOUND);
+            return ApiResponse.error("Peer not found", HttpStatus.NOT_FOUND);
         } else {
             User user1 = peer.get().getUser1();
             User user2 = peer.get().getUser2();
             if (authorizationCheck.checkAuthorization(user1.getId()) ||
                     authorizationCheck.checkAuthorization(user2.getId())) {
                 peersRepo.delete(peer.get());
-                return new ResponseEntity<>(Either.right(true), HttpStatus.OK);
+                return ApiResponse.success(true, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(
-                        Either.left(new ErrorResponseDTO("Forbidden", HttpStatus.FORBIDDEN.value())),
-                        HttpStatus.FORBIDDEN);
+                return ApiResponse.error("Not authorized", HttpStatus.FORBIDDEN);
             }
         }
     }
