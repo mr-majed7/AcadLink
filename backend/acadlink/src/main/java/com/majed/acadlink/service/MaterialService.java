@@ -2,14 +2,12 @@ package com.majed.acadlink.service;
 
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
-import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
-import com.majed.acadlink.enums.Privacy;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.GetUserUtil;
 import com.majed.acadlink.utility.SaveMaterialUtil;
@@ -23,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -212,36 +209,4 @@ public class MaterialService {
         return ApiResponse.success(true, HttpStatus.OK);
     }
 
-    public ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> findMaterials(
-            String keyWords
-    ) {
-        Optional<User> user = getUserUtil.getAuthenticatedUser();
-
-        if (user.isEmpty()) {
-            return ApiResponse.error("User not found", HttpStatus.BAD_REQUEST);
-        }
-
-        List<MaterialResponseDTO> materials = new ArrayList<>();
-
-        materials.addAll(
-                materialsRepo.searchPublicMaterials(keyWords, Privacy.PUBLIC).stream().map(
-                        value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
-                                value.getType(), value.getPrivacy(), value.getFolder().getId())).toList());
-
-
-        materials.addAll(
-                materialsRepo.searchPeerMaterials(keyWords, user.get().getId(), Privacy.PEERS).stream().map(
-                        value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
-                                value.getType(), value.getPrivacy(), value.getFolder().getId())).toList());
-
-
-        materials.addAll(
-                materialsRepo.searchInstitutionalMaterials(keyWords, user.get().getInstitute(), Privacy.INSTITUTIONAL).
-                        stream().map(
-                                value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
-                                        value.getType(), value.getPrivacy(), value.getFolder().getId())).toList());
-
-
-        return ApiResponse.success(materials, HttpStatus.OK);
-    }
 }

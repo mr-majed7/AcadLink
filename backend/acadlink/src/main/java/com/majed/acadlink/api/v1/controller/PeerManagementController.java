@@ -21,7 +21,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("peers")
 @Slf4j
-@Tag(name = "5. Peer Management", description = "Endpoints to manage peers and search for users")
+@Tag(name = "6. Peer Management", description = "Endpoints to manage peers and search for users")
 public class PeerManagementController {
     private final PeersManagementService peersManagementService;
 
@@ -41,7 +41,7 @@ public class PeerManagementController {
      * @param entry the search entry
      * @return the response entity containing the search results or an error status
      */
-    @Operation(summary = "Search users", tags = {"5. Peer Management"})
+    @Operation(summary = "Search users", tags = {"6. Peer Management"})
     @GetMapping("search-user/{entry}")
     public ResponseEntity<ApiResponse<List<SearchResultDTO>>> searchUsers(@PathVariable String entry) {
         return peersManagementService.searchUsers(entry);
@@ -53,7 +53,7 @@ public class PeerManagementController {
      * @param userId the ID of the user to send the peer request to
      * @return the response entity containing the status of the request or an error status
      */
-    @Operation(summary = "Send peer request", tags = {"5. Peer Management"})
+    @Operation(summary = "Send peer request", tags = {"6. Peer Management"})
     @PostMapping("send-peer-request/{userId}")
     public ResponseEntity<ApiResponse<Boolean>> addPeer(@PathVariable UUID userId) {
         return peersManagementService.addPeer(userId);
@@ -65,7 +65,7 @@ public class PeerManagementController {
      * @param type the type of the peer requests to retrieve
      * @return the response entity containing the list of peer requests or an error status
      */
-    @Operation(summary = "Get peer requests", tags = {"5. Peer Management"})
+    @Operation(summary = "Get peer requests", tags = {"6. Peer Management"})
     @GetMapping("get-peer-requests/{type}")
     public ResponseEntity<ApiResponse<List<PeerInfoDTO>>> getRequests(@PathVariable ReqType type) {
         return peersManagementService.getRequests(type);
@@ -77,7 +77,7 @@ public class PeerManagementController {
      * @param reqId the ID of the peer request to accept
      * @return the response entity containing the status of the acceptance or an error status
      */
-    @Operation(summary = "Accept peer request", tags = {"5. Peer Management"})
+    @Operation(summary = "Accept peer request", tags = {"6. Peer Management"})
     @PutMapping("accept-peer-request/{reqId}")
     public ResponseEntity<ApiResponse<Boolean>> acceptRequest(@PathVariable UUID reqId) {
         return peersManagementService.acceptRequest(reqId);
@@ -88,7 +88,7 @@ public class PeerManagementController {
      *
      * @return the response entity containing the list of peers or an error status
      */
-    @Operation(summary = "Get peers", tags = {"5. Peer Management"})
+    @Operation(summary = "Get peers", tags = {"6. Peer Management"})
     @GetMapping("get-peers")
     public ResponseEntity<ApiResponse<List<PeerInfoDTO>>> getPeers() {
         return peersManagementService.findPeers();
@@ -100,7 +100,7 @@ public class PeerManagementController {
      * @param peerId the ID of the peer to remove
      * @return the response entity containing the status of the removal or an error status
      */
-    @Operation(summary = "Remove peer", tags = {"5. Peer Management"})
+    @Operation(summary = "Remove peer", tags = {"6. Peer Management"})
     @DeleteMapping("remove-peer/{peerId}")
     public ResponseEntity<ApiResponse<Boolean>> removePeer(@PathVariable UUID peerId) {
         return peersManagementService.removePeer(peerId);

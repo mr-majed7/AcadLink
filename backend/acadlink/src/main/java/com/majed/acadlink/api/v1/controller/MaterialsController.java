@@ -101,11 +101,4 @@ public class MaterialsController {
         return materialService.deleteMaterial(id);
     }
 
-    @Operation(summary = "Search for Materials", tags = {"4. Materials Management"})
-    @GetMapping(value = "/search-materials", produces = {"application/json"})
-    public ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> searchMaterials(
-            @RequestParam String keyWords
-    ) {
-        return materialService.findMaterials(keyWords);
-    }
 }
