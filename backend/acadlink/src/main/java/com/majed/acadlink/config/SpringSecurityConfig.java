@@ -25,7 +25,9 @@ public class SpringSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(request -> request
                         .requestMatchers("/v1/public/**").permitAll()
-                        .requestMatchers("/v1/folder/**", "/v1/user/**").authenticated()
+                        .requestMatchers(
+                                "/v1/folder/**", "/v1/user/**", "v1/material/**", "v1/peers/**"
+                        ).authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
