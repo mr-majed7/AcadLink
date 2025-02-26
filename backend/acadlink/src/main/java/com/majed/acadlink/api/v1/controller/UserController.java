@@ -1,10 +1,9 @@
 package com.majed.acadlink.api.v1.controller;
 
-import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.user.UserResponseDTO;
 import com.majed.acadlink.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.vavr.control.Either;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +35,7 @@ public class UserController {
      * @return the response entity containing either an error response or the user response
      */
     @GetMapping("get-user")
-    public ResponseEntity<Either<ErrorResponseDTO, UserResponseDTO>> getUser() {
+    public ResponseEntity<ApiResponse<UserResponseDTO>> getUser() {
         return userService.findUser();
     }
 

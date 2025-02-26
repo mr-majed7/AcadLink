@@ -2,11 +2,10 @@ package com.majed.acadlink.service;
 
 import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.domain.repository.UserRepo;
-import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.user.UserResponseDTO;
 import com.majed.acadlink.dto.user.UserSignUpDTO;
 import com.majed.acadlink.utility.GetUserUtil;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,13 +78,11 @@ public class UserService {
      *
      * @return the response entity containing either an error response or the user response
      */
-    public ResponseEntity<Either<ErrorResponseDTO, UserResponseDTO>> findUser() {
+    public ResponseEntity<ApiResponse<UserResponseDTO>> findUser() {
         Optional<User> getUser = getUserUtil.getAuthenticatedUser();
 
         if (getUser.isEmpty()) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User not found", HttpStatus.NOT_FOUND.value())),
-                    HttpStatus.NOT_FOUND);
+            return ApiResponse.error("User not logged in", HttpStatus.BAD_REQUEST);
         }
 
         User user = getUser.get();
@@ -94,6 +91,6 @@ public class UserService {
                 user.getFirstName(), user.getLastName(), user.getInstitute(), user.getEmail(),
                 user.getUsername(), user.getCreatedAt()
         );
-        return new ResponseEntity<>(Either.right(response), HttpStatus.OK);
+        return ApiResponse.success(response, HttpStatus.OK);
     }
 }
