@@ -15,13 +15,13 @@ public interface MaterialsRepo extends JpaRepository<Materials, UUID> {
 
     List<Materials> findByType(MaterialType type);
 
-    // Search for public materials (Use ENUM instead of string)
+    // Search for public materials
     @Query("SELECT m FROM Materials m WHERE m.privacy = :privacy " +
             "AND LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Materials> searchPublicMaterials(@Param("keyword") String keyword,
                                           @Param("privacy") Privacy privacy);
 
-    // Search institutional materials (Fix typo + correct join)
+    // Search institutional materials
     @Query("SELECT m FROM Materials m " +
             "JOIN m.folder f JOIN f.user u " +
             "WHERE m.privacy = :privacy " +
@@ -31,7 +31,7 @@ public interface MaterialsRepo extends JpaRepository<Materials, UUID> {
                                                  @Param("institute") String institute,
                                                  @Param("privacy") Privacy privacy);
 
-    // Search peer-shared materials (Fix missing alias for Peers)
+    // Search peer-shared materials
     @Query("SELECT m FROM Materials m " +
             "JOIN Peers p ON (p.user1.id = :userId OR p.user2.id = :userId) " +
             "WHERE m.privacy = :privacy AND p.status = 'ACCEPTED' " +
@@ -39,4 +39,15 @@ public interface MaterialsRepo extends JpaRepository<Materials, UUID> {
     List<Materials> searchPeerMaterials(@Param("keyword") String keyword,
                                         @Param("userId") UUID userId,
                                         @Param("privacy") Privacy privacy);
+
+    // Find all materials given userId and privacy is PUBLIC, PEERS or INSTITUTIONAL
+    @Query("SELECT m FROM Materials m " +
+            "JOIN m.folder f JOIN f.user u " +
+            "LEFT JOIN Peers p ON (p.user1.id = :userId OR p.user2.id = :userId) " +
+            "WHERE (m.privacy = com.majed.acadlink.enums.Privacy.PUBLIC OR " +
+            "(m.privacy = com.majed.acadlink.enums.Privacy.PEERS AND p.status = 'ACCEPTED') OR " +
+            "(m.privacy = com.majed.acadlink.enums.Privacy.INSTITUTIONAL AND LOWER(REPLACE(u.institute, ' ', '')) = LOWER(REPLACE(:institute, ' ', '')))) " +
+            "AND u.id = :userId")
+    List<Materials> findAllByUserIdAndPrivacy(@Param("userId") UUID userId,
+                                              @Param("institute") String institute);
 }
