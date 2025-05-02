@@ -93,16 +93,21 @@ backend/
   acadlink/
     src/
       main/
-        java/com/majed/acadlink/   # Source code (API, service, domain, config, etc.)
-        resources/                  # Configuration files (application.yml)
+        java/com/majed/acadlink/
+        resources/
       test/
-        java/com/majed/acadlink/   # Test cases
-    pom.xml                        # Maven build file
+        java/com/majed/acadlink/
+    pom.xml
 ```
+
+- `java/com/majed/acadlink/`: Source code (API, service, domain, config, etc.)
+- `resources/`: Configuration files (application.yml)
+- `test/java/com/majed/acadlink/`: Test cases
+- `pom.xml`: Maven build file
 
 ## Author
 
 **Majedul Islam**  
 Backend Developer | CS Undergrad  
 [GitHub](https://github.com/mr-majed7) • [LinkedIn](https://www.linkedin.com/in/majedul-islam-041637220/)  
-Interesed in backend systems, Java/Spring Boot.
+Interested in backend systems, Java/Spring Boot.
