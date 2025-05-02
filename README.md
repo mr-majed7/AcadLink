@@ -100,6 +100,9 @@ backend/
     pom.xml                        # Maven build file
 ```
 
-## License
+## Author
 
-This project is licensed under the MIT License.
+**Majedul Islam**  
+Backend Developer | CS Undergrad  
+[GitHub](https://github.com/mr-majed7) • [LinkedIn](https://www.linkedin.com/in/majedul-islam-041637220/)  
+Interesed in backend systems, Java/Spring Boot.
