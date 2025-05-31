@@ -39,12 +39,10 @@ class FindMaterialControllerTest {
     private MaterialResponseDTO sampleMaterial1;
     private MaterialResponseDTO sampleMaterial2;
     private List<MaterialResponseDTO> sampleMaterials;
-    private UUID testUserId;
     private UUID testFolderId;
 
     @BeforeEach
     void setUp() {
-        testUserId = UUID.randomUUID();
         testFolderId = UUID.randomUUID();
 
         // Setup sample materials
