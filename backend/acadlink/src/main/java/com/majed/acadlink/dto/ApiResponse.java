@@ -1,9 +1,10 @@
 package com.majed.acadlink.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
@@ -20,6 +21,18 @@ public class ApiResponse<T> {
         this.data = data;
         this.error = error;
         this.status = status;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     public static <T> ResponseEntity<ApiResponse<T>> success(T data, HttpStatus status) {
