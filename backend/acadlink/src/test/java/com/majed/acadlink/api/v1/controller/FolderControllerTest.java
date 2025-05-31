@@ -21,6 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.majed.acadlink.domain.entitie.Folder;
+import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
@@ -40,8 +42,9 @@ class FolderControllerTest {
     @InjectMocks
     private FolderController folderController;
 
-    private UUID testUserId;
     private UUID testFolderId;
+    private User testUser;
+    private Folder testFolder;
     private FolderCreateDTO folderCreateDTO;
     private AllFolderResponseDTO sampleFolder;
     private List<AllFolderResponseDTO> sampleFolders;
@@ -50,7 +53,6 @@ class FolderControllerTest {
 
     @BeforeEach
     void setUp() {
-        testUserId = UUID.randomUUID();
         testFolderId = UUID.randomUUID();
 
         // Setup folder create DTO

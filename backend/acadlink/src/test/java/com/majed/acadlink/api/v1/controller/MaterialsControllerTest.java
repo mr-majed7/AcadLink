@@ -24,6 +24,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
+import com.majed.acadlink.domain.entitie.Folder;
+import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
@@ -40,18 +43,21 @@ class MaterialsControllerTest {
     @InjectMocks
     private MaterialsController materialsController;
 
+    private UUID testFolderId;
+    private UUID testMaterialId;
+    private User testUser;
+    private Folder testFolder;
+    private Materials testMaterial;
+    private MockMultipartFile mockMultipartFile;
+    private MaterialAddDTO materialAddDTO;
     private MaterialResponseDTO sampleMaterial1;
     private MaterialResponseDTO sampleMaterial2;
     private List<MaterialResponseDTO> sampleMaterials;
-    private UUID testUserId;
-    private UUID testFolderId;
-    private MaterialAddDTO materialAddDTO;
-    private MockMultipartFile sampleFile;
 
     @BeforeEach
     void setUp() {
-        testUserId = UUID.randomUUID();
         testFolderId = UUID.randomUUID();
+        testMaterialId = UUID.randomUUID();
 
         // Setup sample materials
         sampleMaterial1 = new MaterialResponseDTO(
@@ -75,7 +81,7 @@ class MaterialsControllerTest {
         sampleMaterials = Arrays.asList(sampleMaterial1, sampleMaterial2);
 
         // Setup sample file
-        sampleFile = new MockMultipartFile(
+        mockMultipartFile = new MockMultipartFile(
             "file",
             "test.pdf",
             "application/pdf",
@@ -88,7 +94,7 @@ class MaterialsControllerTest {
         materialAddDTO.setFolderId(testFolderId);
         materialAddDTO.setType(MaterialType.BOOK);
         materialAddDTO.setPrivacy(Privacy.PUBLIC);
-        materialAddDTO.setFile(sampleFile);
+        materialAddDTO.setFile(mockMultipartFile);
     }
 
     @Test
