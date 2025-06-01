@@ -121,7 +121,7 @@ The database schema is designed to efficiently manage users, materials, folders,
 
 ## 📚 API Documentation
 
-The API documentation is available through Swagger UI at the root path (`/`). The API is organized into the following sections:
+The API documentation is available through Swagger UI at the root path (`/v1`). The API is organized into the following sections:
 
 1. Public Endpoints (Sign Up, Sign In)
 2. Profile Management
@@ -159,8 +159,8 @@ Here are some screenshots of our API interface and documentation:
 1. **Clone the repository**
 
    ```bash
-   git clone <your-repo-url>
-   cd backend/acadlink
+   git clone https://github.com/mr-majed7/AcadLink.git
+   cd AcadLink/backend/acadlink
    ```
 
 2. **Configure the application**
