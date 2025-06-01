@@ -25,7 +25,9 @@
   </p>
 </div>
 
-### SonarCloud Analysis
+<div align="center">
+  <h3>SonarCloud Analysis</h3>
+</div>
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)

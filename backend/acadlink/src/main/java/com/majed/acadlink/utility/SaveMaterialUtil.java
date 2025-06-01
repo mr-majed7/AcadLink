@@ -1,6 +1,5 @@
 package com.majed.acadlink.utility;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +38,16 @@ public class SaveMaterialUtil {
     private final FolderRepo folderRepo;
     private final MaterialsRepo materialsRepo;
 
+    private String sanitizeFilename(String filename) {
+        if (filename == null) {
+            return "unnamed_file";
+        }
+        // Remove any path components and keep only the filename
+        String sanitized = filename.replaceAll("[\\\\/:*?\"<>|]", "_");
+        // If the filename is empty after sanitization, use a default name
+        return sanitized.isEmpty() ? "unnamed_file" : sanitized;
+    }
+
     /**
      * Saves a material file to the configured storage path.
      * The file is stored with its original name in the materials directory.
@@ -60,19 +69,20 @@ public class SaveMaterialUtil {
             Path storageDir = Paths.get(storagePath);
             Files.createDirectories(storageDir);
 
-            // Generate unique filename to prevent collisions
+            // Generate unique filename with sanitized original name
             String originalFilename = file.getOriginalFilename();
-            String uniqueFilename = UUID.randomUUID() + "_" + originalFilename;
-            String filePath = storageDir.resolve(uniqueFilename).toString();
+            String sanitizedFilename = sanitizeFilename(originalFilename);
+            String uniqueFilename = UUID.randomUUID() + "_" + sanitizedFilename;
+            Path filePath = storageDir.resolve(uniqueFilename);
 
             // Save the file
-            file.transferTo(new File(filePath));
+            file.transferTo(filePath.toFile());
 
             // Save to database
             Materials material = new Materials();
             material.setFolder(folder);
-            material.setName(originalFilename);
-            material.setLink(filePath);
+            material.setName(sanitizedFilename);  // Use sanitized name for display
+            material.setLink(filePath.toString());
             material.setType(materialData.getType());
             material.setPrivacy(materialData.getPrivacy() != null ? materialData.getPrivacy() : Privacy.PUBLIC);
             

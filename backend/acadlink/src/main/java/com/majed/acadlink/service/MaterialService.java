@@ -1,9 +1,6 @@
 package com.majed.acadlink.service;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +8,6 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.majed.acadlink.config.StorageConfig;
 import com.majed.acadlink.domain.entitie.Folder;
@@ -152,44 +148,53 @@ public class MaterialService {
      */
     public ResponseEntity<ApiResponse<MaterialResponseDTO>> updateMaterial(
             UUID materialId, MaterialAddDTO newData) throws IOException {
-        Optional<Materials> material = materialsRepo.findById(materialId);
-        if (material.isEmpty()) {
-            return ApiResponse.error("No material found with this id", HttpStatus.NOT_FOUND);
-        }
-        Folder folder = folderRepo.findById(material.get().getFolder().getId())
-            .orElseThrow(() -> new ResourceNotFoundException(NO_FOLDER_FOUND_MESSAGE));
-        if (!authorizationCheck.checkAuthorization(folder.getUser().getId())) {
-            return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
-        }
+        try {
+            Optional<Materials> material = materialsRepo.findById(materialId);
+            if (material.isEmpty()) {
+                return ApiResponse.error("No material found with this id", HttpStatus.NOT_FOUND);
+            }
+            Folder folder = folderRepo.findById(material.get().getFolder().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(NO_FOLDER_FOUND_MESSAGE));
+            if (!authorizationCheck.checkAuthorization(folder.getUser().getId())) {
+                return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
+            }
 
-        Materials current = material.get();
+            Materials current = material.get();
 
-        if (newData.getName() != null) {
-            current.setName(newData.getName());
-        }
-        if (newData.getType() != null) {
-            current.setType(newData.getType());
-        }
-        if (newData.getLink() != null) {
-            current.setLink(newData.getLink());
-        }
-        if (newData.getPrivacy() != null) {
-            current.setPrivacy(newData.getPrivacy());
-        }
-        if (newData.getFile() != null) {
-            final String FILE_STORAGE_PATH = storageConfig.getMaterials().getPath();
-            MultipartFile file = newData.getFile();
-            String filePath = String.valueOf(Paths.get(FILE_STORAGE_PATH, file.getOriginalFilename()));
-            Files.createDirectories(Paths.get(FILE_STORAGE_PATH));
-            file.transferTo(new File(filePath));
-            current.setLink(filePath);
-        }
+            if (newData.getName() != null) {
+                current.setName(newData.getName());
+            }
+            if (newData.getType() != null) {
+                current.setType(newData.getType());
+            }
+            if (newData.getLink() != null) {
+                current.setLink(newData.getLink());
+            }
+            if (newData.getPrivacy() != null) {
+                current.setPrivacy(newData.getPrivacy());
+            }
+            if (newData.getFile() != null) {
+                // Use SaveMaterialUtil to handle file upload securely
+                MaterialAddDTO tempMaterialData = new MaterialAddDTO();
+                tempMaterialData.setFile(newData.getFile());
+                tempMaterialData.setFolderId(current.getFolder().getId());
+                tempMaterialData.setType(current.getType());
+                tempMaterialData.setPrivacy(current.getPrivacy());
+                
+                MaterialResponseDTO savedMaterial = saveMaterialUtil.saveMaterialFile(tempMaterialData);
+                current.setLink(savedMaterial.getLink());
+                current.setName(savedMaterial.getName());
+            }
 
-        materialsRepo.save(current);
-        MaterialResponseDTO response = new MaterialResponseDTO(current.getId(), current.getName(), current.getLink(),
-                current.getType(), current.getPrivacy(), current.getFolder().getId()
-        );
-        return ApiResponse.success(response, HttpStatus.CREATED);
+            materialsRepo.save(current);
+            MaterialResponseDTO response = new MaterialResponseDTO(current.getId(), current.getName(), current.getLink(),
+                    current.getType(), current.getPrivacy(), current.getFolder().getId()
+            );
+            return ApiResponse.success(response, HttpStatus.CREATED);
+        } catch (MaterialSaveException e) {
+            log.error("Error updating material: {}", e.getMessage(), e);
+            throw new MaterialOperationException("Failed to update material", e);
+        }
     }
 
     /**

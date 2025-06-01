@@ -555,4 +555,125 @@ class MaterialServiceTest {
         verify(folderRepo, times(1)).existsById(testFolderId);
         verify(saveMaterialUtil, times(1)).saveMaterialFile(materialAddDTO);
     }
+
+    @Test
+    void updateMaterial_WithFile_Success() throws IOException {
+        // Arrange
+        MaterialAddDTO updateData = new MaterialAddDTO();
+        updateData.setFile(testFile);
+        updateData.setName("Updated Name");
+        updateData.setType(MaterialType.LECTURE_NOTE);
+        updateData.setPrivacy(Privacy.PRIVATE);
+
+        when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.of(testMaterial));
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
+
+        MaterialResponseDTO savedMaterialResponse = new MaterialResponseDTO(
+            testMaterialId,
+            "test.pdf",
+            "/secure/path/test.pdf",
+            MaterialType.LECTURE_NOTE,
+            Privacy.PRIVATE,
+            testFolderId
+        );
+        when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
+            .thenReturn(savedMaterialResponse);
+        when(materialsRepo.save(any(Materials.class))).thenAnswer(invocation -> {
+            Materials savedMaterial = invocation.getArgument(0);
+            savedMaterial.setId(testMaterialId);
+            return savedMaterial;
+        });
+
+        // Act
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
+            materialService.updateMaterial(testMaterialId, updateData);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getData());
+        assertEquals(savedMaterialResponse.getName(), response.getBody().getData().getName());
+        assertEquals(savedMaterialResponse.getLink(), response.getBody().getData().getLink());
+        assertEquals(MaterialType.LECTURE_NOTE, response.getBody().getData().getType());
+        assertEquals(Privacy.PRIVATE, response.getBody().getData().getPrivacy());
+        verify(materialsRepo, times(1)).findById(testMaterialId);
+        verify(folderRepo, times(1)).findById(testFolderId);
+        verify(authorizationCheck, times(1)).checkAuthorization(testUserId);
+        verify(saveMaterialUtil, times(1)).saveMaterialFile(any(MaterialAddDTO.class));
+        verify(materialsRepo, times(1)).save(any(Materials.class));
+    }
+
+    @Test
+    void updateMaterial_WithFile_NotAuthorized() throws IOException {
+        // Arrange
+        MaterialAddDTO updateData = new MaterialAddDTO();
+        updateData.setFile(testFile);
+
+        when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.of(testMaterial));
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(false);
+
+        // Act
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
+            materialService.updateMaterial(testMaterialId, updateData);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Not authorized", response.getBody().getError());
+        verify(materialsRepo, times(1)).findById(testMaterialId);
+        verify(folderRepo, times(1)).findById(testFolderId);
+        verify(authorizationCheck, times(1)).checkAuthorization(testUserId);
+        verify(saveMaterialUtil, times(0)).saveMaterialFile(any());
+        verify(materialsRepo, times(0)).save(any());
+    }
+
+    @Test
+    void updateMaterial_WithFile_MaterialNotFound() throws IOException {
+        // Arrange
+        MaterialAddDTO updateData = new MaterialAddDTO();
+        updateData.setFile(testFile);
+
+        when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.empty());
+
+        // Act
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
+            materialService.updateMaterial(testMaterialId, updateData);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("No material found with this id", response.getBody().getError());
+        verify(materialsRepo, times(1)).findById(testMaterialId);
+        verify(folderRepo, times(0)).findById(any());
+        verify(authorizationCheck, times(0)).checkAuthorization(any());
+        verify(saveMaterialUtil, times(0)).saveMaterialFile(any());
+        verify(materialsRepo, times(0)).save(any());
+    }
+
+    @Test
+    void updateMaterial_WithFile_SaveMaterialException() throws IOException {
+        // Arrange
+        MaterialAddDTO updateData = new MaterialAddDTO();
+        updateData.setFile(testFile);
+
+        when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.of(testMaterial));
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
+        when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
+            .thenThrow(new MaterialSaveException("Failed to save material file"));
+
+        // Act & Assert
+        assertThrows(MaterialOperationException.class, () -> 
+            materialService.updateMaterial(testMaterialId, updateData));
+        verify(materialsRepo, times(1)).findById(testMaterialId);
+        verify(folderRepo, times(1)).findById(testFolderId);
+        verify(authorizationCheck, times(1)).checkAuthorization(testUserId);
+        verify(saveMaterialUtil, times(1)).saveMaterialFile(any());
+        verify(materialsRepo, times(0)).save(any());
+    }
 } 
