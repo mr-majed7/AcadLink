@@ -31,8 +31,10 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=bugs)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 
 ## 📋 Table of Contents
 
@@ -193,3 +195,16 @@ backend/
 Backend Developer | CS Undergrad  
 [GitHub](https://github.com/mr-majed7) • [LinkedIn](https://www.linkedin.com/in/majedul-islam-041637220/)  
 Interested in backend systems, Java/Spring Boot.
+
+## Code Quality
+
+This project uses SonarCloud for continuous code quality monitoring. The analysis is automatically performed on every push to the main branch and on pull requests.
+
+### Quality Metrics
+
+- **Code Quality**: Monitored through SonarCloud's quality gates
+- **Code Coverage**: Tracked for both backend and frontend code
+- **Code Smells**: Automatically detected and reported
+- **Security Vulnerabilities**: Continuously scanned and reported
+
+You can view the detailed analysis and metrics at: [SonarCloud Dashboard](https://sonarcloud.io/summary/overall?id=mr-majed7_AcadLink&branch=main)
