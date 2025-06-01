@@ -1,0 +1,48 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+  application:
+    name: acadlink
+  datasource:
+    url: jdbc:mysql://localhost:3306/acadlink
+    username: your_db_username
+    password: your_db_password
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your_email@gmail.com
+    password: your_app_password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  custom:
+    security:
+      jwtsecret: your_jwt_secret_key
+      sonar_token: your_sonar_token
+
+springdoc:
+  swagger-ui:
+    path: /
+    tags-sorter: alpha
+    operations-sorter: method
+
+server:
+  servlet:
+    context-path: /v1
+
+acadlink:
+  storage:
+    materials:
+      path: /path/to/your/storage/materials 
