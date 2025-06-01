@@ -1,97 +1,126 @@
 package com.majed.acadlink.utility;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.majed.acadlink.config.StorageConfig;
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
+import com.majed.acadlink.enums.Privacy;
+import com.majed.acadlink.exception.ResourceNotFoundException;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class for saving material files and links.
+ * This class handles:
+ * 1. File storage and management
+ * 2. Link validation and storage
+ * 3. Material response generation
  */
-@Slf4j
 @Component
+@Slf4j
+@RequiredArgsConstructor
 public class SaveMaterialUtil {
-    private static final String FILE_STORAGE_PATH = "/home/majed/AcadLink/backend/acadlink/storage/materials";
+    private final StorageConfig storageConfig;
     private final FolderRepo folderRepo;
     private final MaterialsRepo materialsRepo;
 
     /**
-     * Constructor for SaveMaterialUtil.
+     * Saves a material file to the configured storage path.
+     * The file is stored with its original name in the materials directory.
      *
-     * @param folderRepo    the folder repository
-     * @param materialsRepo the materials repository
-     */
-    public SaveMaterialUtil(FolderRepo folderRepo, MaterialsRepo materialsRepo) {
-        this.folderRepo = folderRepo;
-        this.materialsRepo = materialsRepo;
-    }
-
-    /**
-     * Saves a material file to the storage and creates a material entity.
-     *
-     * @param materialData the material data transfer object containing file information
-     * @return the response DTO containing saved material information
-     * @throws IOException if an I/O error occurs during file saving
+     * @param materialData the material data containing the file to save
+     * @return the response DTO containing the saved material information
+     * @throws IOException if an error occurs during file operations
      */
     public MaterialResponseDTO saveMaterialFile(MaterialAddDTO materialData) throws IOException {
+        // Validate folder exists
+        Folder folder = folderRepo.findById(materialData.getFolderId())
+            .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
+
         MultipartFile file = materialData.getFile();
-        String filePath = String.valueOf(Paths.get(FILE_STORAGE_PATH, file.getOriginalFilename()));
-        Files.createDirectories(Paths.get(FILE_STORAGE_PATH));
+        String storagePath = storageConfig.getMaterials().getPath();
+        
+        // Create storage directory if it doesn't exist
+        Path storageDir = Paths.get(storagePath);
+        Files.createDirectories(storageDir);
+
+        // Generate unique filename to prevent collisions
+        String originalFilename = file.getOriginalFilename();
+        String uniqueFilename = UUID.randomUUID() + "_" + originalFilename;
+        String filePath = storageDir.resolve(uniqueFilename).toString();
+
+        // Save the file
         file.transferTo(new File(filePath));
 
-        return saveMaterialEntity(materialData, filePath);
-    }
-
-    /**
-     * Saves a material link and creates a material entity.
-     *
-     * @param materialData the material data transfer object containing link information
-     * @return the response DTO containing saved material information
-     */
-    public MaterialResponseDTO saveMaterialLink(MaterialAddDTO materialData) {
-        String link = materialData.getLink();
-        return saveMaterialEntity(materialData, link);
-    }
-
-    /**
-     * Saves a material entity to the database.
-     *
-     * @param materialData the material data transfer object
-     * @param filePath     the file path or link of the material
-     * @return the response DTO containing saved material information
-     */
-    private MaterialResponseDTO saveMaterialEntity(MaterialAddDTO materialData, String filePath) {
-        Optional<Folder> folderOpt = folderRepo.findById(materialData.getFolderId());
-        if (!folderOpt.isPresent()) {
-            return null;
+        // Save to database
+        Materials material = new Materials();
+        material.setFolder(folder);
+        material.setName(originalFilename);
+        material.setLink(filePath);
+        material.setType(materialData.getType());
+        material.setPrivacy(materialData.getPrivacy() != null ? materialData.getPrivacy() : Privacy.PUBLIC);
+        
+        Materials savedMaterial = materialsRepo.save(material);
+        if (savedMaterial == null) {
+            throw new RuntimeException("Failed to save material to database");
         }
 
-        Folder folder = folderOpt.get();
-        MaterialResponseDTO responseDTO = null;
+        return new MaterialResponseDTO(
+            savedMaterial.getId(),
+            savedMaterial.getName(),
+            savedMaterial.getLink(),
+            savedMaterial.getType(),
+            savedMaterial.getPrivacy(),
+            savedMaterial.getFolder().getId()
+        );
+    }
 
+    /**
+     * Saves a material link.
+     * Validates the link and creates a response DTO.
+     *
+     * @param materialData the material data containing the link to save
+     * @return the response DTO containing the saved material information
+     */
+    public MaterialResponseDTO saveMaterialLink(MaterialAddDTO materialData) {
+        // Validate folder exists
+        Folder folder = folderRepo.findById(materialData.getFolderId())
+            .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
+
+        // Save to database
         Materials material = new Materials();
         material.setFolder(folder);
         material.setName(materialData.getName());
-        material.setLink(filePath);
+        material.setLink(materialData.getLink());
         material.setType(materialData.getType());
-        material.setPrivacy(materialData.getPrivacy());
+        material.setPrivacy(materialData.getPrivacy() != null ? materialData.getPrivacy() : Privacy.PUBLIC);
+        
         Materials savedMaterial = materialsRepo.save(material);
-        responseDTO = new MaterialResponseDTO(
-                savedMaterial.getId(), savedMaterial.getName(), savedMaterial.getLink(), savedMaterial.getType(),
-                savedMaterial.getPrivacy(), savedMaterial.getFolder().getId()
-        );
+        if (savedMaterial == null) {
+            throw new RuntimeException("Failed to save material to database");
+        }
 
-        return responseDTO;
+        return new MaterialResponseDTO(
+            savedMaterial.getId(),
+            savedMaterial.getName(),
+            savedMaterial.getLink(),
+            savedMaterial.getType(),
+            savedMaterial.getPrivacy(),
+            savedMaterial.getFolder().getId()
+        );
     }
 }

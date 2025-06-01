@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.majed.acadlink.config.StorageConfig;
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
 import com.majed.acadlink.domain.repository.FolderRepo;
@@ -21,6 +22,7 @@ import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
+import com.majed.acadlink.exception.ResourceNotFoundException;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.SaveMaterialUtil;
 
@@ -39,6 +41,7 @@ public class MaterialService {
     private final MaterialsRepo materialsRepo;
     private final SaveMaterialUtil saveMaterialUtil;
     private final AuthorizationCheck authorizationCheck;
+    private final StorageConfig storageConfig;
 
     /**
      * Constructor for MaterialService.
@@ -47,17 +50,20 @@ public class MaterialService {
      * @param materialsRepo      the materials repository
      * @param saveMaterialUtil   utility to save material files and links
      * @param authorizationCheck utility to check user authorization
+     * @param storageConfig      configuration for storage
      */
     public MaterialService(
             FolderRepo folderRepo,
             MaterialsRepo materialsRepo,
             SaveMaterialUtil saveMaterialUtil,
-            AuthorizationCheck authorizationCheck
+            AuthorizationCheck authorizationCheck,
+            StorageConfig storageConfig
     ) {
         this.folderRepo = folderRepo;
         this.materialsRepo = materialsRepo;
         this.saveMaterialUtil = saveMaterialUtil;
         this.authorizationCheck = authorizationCheck;
+        this.storageConfig = storageConfig;
     }
 
     /**
@@ -69,6 +75,10 @@ public class MaterialService {
     public ResponseEntity<ApiResponse<MaterialResponseDTO>> saveMaterial(
             MaterialAddDTO materialData) {
         try {
+            // Validate folder exists and user has access
+            Folder folder = folderRepo.findById(materialData.getFolderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
+
             if (materialData.getFile() != null && !materialData.getFile().isEmpty()) {
                 MaterialResponseDTO savedMaterial = saveMaterialUtil.saveMaterialFile(materialData);
                 return ApiResponse.success(savedMaterial, HttpStatus.CREATED);
@@ -79,8 +89,8 @@ public class MaterialService {
                 return ApiResponse.error("File or Link is required", HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
-            log.error(e.toString());
-            return ApiResponse.error("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Error saving material: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to save material: " + e.getMessage());
         }
     }
 
@@ -95,11 +105,9 @@ public class MaterialService {
         if (material.isEmpty()) {
             return ApiResponse.error("No material found", HttpStatus.NOT_FOUND);
         }
-        Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
-        if (folder.isEmpty()) {
-            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
-        }
-        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+        Folder folder = folderRepo.findById(material.get().getFolder().getId())
+            .orElseThrow(() -> new ResourceNotFoundException(NO_FOLDER_FOUND_MESSAGE));
+        if (!authorizationCheck.checkAuthorization(folder.getUser().getId())) {
             return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
         MaterialResponseDTO materialResponse = material.map(
@@ -119,11 +127,9 @@ public class MaterialService {
             MaterialType type,
             UUID folderId) {
         List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
-        Optional<Folder> folder = folderRepo.findById(folderId);
-        if (folder.isEmpty()) {
-            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
-        }
-        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+        Folder folder = folderRepo.findById(folderId)
+            .orElseThrow(() -> new ResourceNotFoundException(NO_FOLDER_FOUND_MESSAGE));
+        if (!authorizationCheck.checkAuthorization(folder.getUser().getId())) {
             return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
         List<MaterialResponseDTO> materialList = materials.stream().map(
@@ -147,11 +153,9 @@ public class MaterialService {
         if (material.isEmpty()) {
             return ApiResponse.error("No material found with this id", HttpStatus.NOT_FOUND);
         }
-        Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
-        if (folder.isEmpty()) {
-            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
-        }
-        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+        Folder folder = folderRepo.findById(material.get().getFolder().getId())
+            .orElseThrow(() -> new ResourceNotFoundException(NO_FOLDER_FOUND_MESSAGE));
+        if (!authorizationCheck.checkAuthorization(folder.getUser().getId())) {
             return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
 
@@ -170,7 +174,7 @@ public class MaterialService {
             current.setPrivacy(newData.getPrivacy());
         }
         if (newData.getFile() != null) {
-            final String FILE_STORAGE_PATH = "/home/majed/AcadLink/backend/acadlink/storage/materials";
+            final String FILE_STORAGE_PATH = storageConfig.getMaterials().getPath();
             MultipartFile file = newData.getFile();
             String filePath = String.valueOf(Paths.get(FILE_STORAGE_PATH, file.getOriginalFilename()));
             Files.createDirectories(Paths.get(FILE_STORAGE_PATH));
@@ -197,11 +201,9 @@ public class MaterialService {
         if (material.isEmpty()) {
             return ApiResponse.error("No material found to delete", HttpStatus.NOT_FOUND);
         }
-        Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
-        if (folder.isEmpty()) {
-            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
-        }
-        if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
+        Folder folder = folderRepo.findById(material.get().getFolder().getId())
+            .orElseThrow(() -> new ResourceNotFoundException(NO_FOLDER_FOUND_MESSAGE));
+        if (!authorizationCheck.checkAuthorization(folder.getUser().getId())) {
             return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
         materialsRepo.delete(material.get());

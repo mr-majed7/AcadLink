@@ -15,7 +15,7 @@ import java.util.UUID;
 public class FolderResponseDTO {
     private UUID id;
     private String name;
-    private LocalDate CreatedAt;
+    private LocalDate createdAt;
     private Privacy privacy;
     private List<MaterialResponseDTO> materials;
 }

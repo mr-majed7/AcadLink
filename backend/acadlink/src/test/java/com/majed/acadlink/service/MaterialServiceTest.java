@@ -2,6 +2,7 @@ package com.majed.acadlink.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,7 @@ import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.enums.Privacy;
+import com.majed.acadlink.exception.ResourceNotFoundException;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.GetUserUtil;
 import com.majed.acadlink.utility.SaveMaterialUtil;
@@ -123,6 +125,7 @@ class MaterialServiceTest {
     @Test
     void saveMaterial_WithFile_Success() throws IOException {
         // Arrange
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
             .thenReturn(materialResponseDTO);
 
@@ -140,10 +143,11 @@ class MaterialServiceTest {
     }
 
     @Test
-    void saveMaterial_WithLink_Success() throws IOException {
+    void saveMaterial_WithLink_Success() {
         // Arrange
         materialAddDTO.setFile(null);
         materialAddDTO.setLink("http://example.com/test.pdf");
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(saveMaterialUtil.saveMaterialLink(any(MaterialAddDTO.class)))
             .thenReturn(materialResponseDTO);
 
@@ -165,6 +169,7 @@ class MaterialServiceTest {
         // Arrange
         materialAddDTO.setFile(null);
         materialAddDTO.setLink(null);
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
 
         // Act
         ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
@@ -177,6 +182,16 @@ class MaterialServiceTest {
         assertEquals("File or Link is required", response.getBody().getError());
         verify(saveMaterialUtil, times(0)).saveMaterialFile(any());
         verify(saveMaterialUtil, times(0)).saveMaterialLink(any());
+    }
+
+    @Test
+    void saveMaterial_FolderNotFound() {
+        // Arrange
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> 
+            materialService.saveMaterial(materialAddDTO));
     }
 
     @Test
@@ -506,7 +521,7 @@ class MaterialServiceTest {
     }
 
     @Test
-    void saveMaterial_Success_File() {
+    void saveMaterial_Success_File() throws IOException {
         // Arrange
         MaterialAddDTO materialData = new MaterialAddDTO();
         materialData.setName("test.pdf");
@@ -514,6 +529,30 @@ class MaterialServiceTest {
         materialData.setFolderId(testFolderId);
         materialData.setFile(testFile);
 
-        // ... rest of the test method remains unchanged ...
+        MaterialResponseDTO expectedResponse = new MaterialResponseDTO(
+            testMaterialId,
+            "test.pdf",
+            "http://example.com/test.pdf",
+            MaterialType.BOOK,
+            Privacy.PUBLIC,
+            testFolderId
+        );
+
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
+            .thenReturn(expectedResponse);
+
+        // Act
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
+            materialService.saveMaterial(materialData);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getData());
+        assertEquals(expectedResponse, response.getBody().getData());
+        verify(folderRepo, times(1)).findById(testFolderId);
+        verify(saveMaterialUtil, times(1)).saveMaterialFile(materialData);
     }
 } 

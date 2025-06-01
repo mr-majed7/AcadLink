@@ -12,6 +12,6 @@ import java.util.UUID;
 public class UpdateFolderResponseDTO {
     private UUID id;
     private String name;
-    private LocalDate CreatedAt;
+    private LocalDate createdAt;
     private Privacy privacy;
 }
