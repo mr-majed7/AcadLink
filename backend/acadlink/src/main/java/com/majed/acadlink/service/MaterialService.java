@@ -22,6 +22,8 @@ import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
+import com.majed.acadlink.exception.MaterialOperationException;
+import com.majed.acadlink.exception.MaterialSaveException;
 import com.majed.acadlink.exception.ResourceNotFoundException;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.SaveMaterialUtil;
@@ -75,9 +77,10 @@ public class MaterialService {
     public ResponseEntity<ApiResponse<MaterialResponseDTO>> saveMaterial(
             MaterialAddDTO materialData) {
         try {
-            // Validate folder exists and user has access
-            Folder folder = folderRepo.findById(materialData.getFolderId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
+            // Validate folder exists
+            if (!folderRepo.existsById(materialData.getFolderId())) {
+                throw new ResourceNotFoundException("Folder not found");
+            }
 
             if (materialData.getFile() != null && !materialData.getFile().isEmpty()) {
                 MaterialResponseDTO savedMaterial = saveMaterialUtil.saveMaterialFile(materialData);
@@ -88,9 +91,9 @@ public class MaterialService {
             } else {
                 return ApiResponse.error("File or Link is required", HttpStatus.BAD_REQUEST);
             }
-        } catch (IOException e) {
+        } catch (IOException | MaterialSaveException e) {
             log.error("Error saving material: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to save material: " + e.getMessage());
+            throw new MaterialOperationException("Failed to save material", e);
         }
     }
 
@@ -126,12 +129,12 @@ public class MaterialService {
     public ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> findMaterialsByType(
             MaterialType type,
             UUID folderId) {
-        List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
         Folder folder = folderRepo.findById(folderId)
             .orElseThrow(() -> new ResourceNotFoundException(NO_FOLDER_FOUND_MESSAGE));
         if (!authorizationCheck.checkAuthorization(folder.getUser().getId())) {
             return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
+        List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
         List<MaterialResponseDTO> materialList = materials.stream().map(
                 value -> new MaterialResponseDTO(value.getId(), value.getName(),
                         value.getLink(), value.getType(), value.getPrivacy(), value.getFolder().getId())).toList();

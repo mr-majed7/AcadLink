@@ -3,6 +3,7 @@ package com.majed.acadlink.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,6 +36,8 @@ import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.enums.Privacy;
+import com.majed.acadlink.exception.MaterialOperationException;
+import com.majed.acadlink.exception.MaterialSaveException;
 import com.majed.acadlink.exception.ResourceNotFoundException;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.GetUserUtil;
@@ -125,7 +128,7 @@ class MaterialServiceTest {
     @Test
     void saveMaterial_WithFile_Success() throws IOException {
         // Arrange
-        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(folderRepo.existsById(testFolderId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
             .thenReturn(materialResponseDTO);
 
@@ -139,6 +142,7 @@ class MaterialServiceTest {
         assertNotNull(response.getBody());
         assertNotNull(response.getBody().getData());
         assertEquals(materialResponseDTO, response.getBody().getData());
+        verify(folderRepo, times(1)).existsById(testFolderId);
         verify(saveMaterialUtil, times(1)).saveMaterialFile(materialAddDTO);
     }
 
@@ -147,7 +151,7 @@ class MaterialServiceTest {
         // Arrange
         materialAddDTO.setFile(null);
         materialAddDTO.setLink("http://example.com/test.pdf");
-        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(folderRepo.existsById(testFolderId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialLink(any(MaterialAddDTO.class)))
             .thenReturn(materialResponseDTO);
 
@@ -161,6 +165,7 @@ class MaterialServiceTest {
         assertNotNull(response.getBody());
         assertNotNull(response.getBody().getData());
         assertEquals(materialResponseDTO, response.getBody().getData());
+        verify(folderRepo, times(1)).existsById(testFolderId);
         verify(saveMaterialUtil, times(1)).saveMaterialLink(materialAddDTO);
     }
 
@@ -169,7 +174,7 @@ class MaterialServiceTest {
         // Arrange
         materialAddDTO.setFile(null);
         materialAddDTO.setLink(null);
-        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(folderRepo.existsById(testFolderId)).thenReturn(true);
 
         // Act
         ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
@@ -180,6 +185,7 @@ class MaterialServiceTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("File or Link is required", response.getBody().getError());
+        verify(folderRepo, times(1)).existsById(testFolderId);
         verify(saveMaterialUtil, times(0)).saveMaterialFile(any());
         verify(saveMaterialUtil, times(0)).saveMaterialLink(any());
     }
@@ -187,11 +193,12 @@ class MaterialServiceTest {
     @Test
     void saveMaterial_FolderNotFound() {
         // Arrange
-        when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
+        when(folderRepo.existsById(testFolderId)).thenReturn(false);
 
         // Act & Assert
         assertThrows(ResourceNotFoundException.class, () -> 
             materialService.saveMaterial(materialAddDTO));
+        verify(folderRepo, times(1)).existsById(testFolderId);
     }
 
     @Test
@@ -238,15 +245,8 @@ class MaterialServiceTest {
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.of(testMaterial));
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.findMaterial(testMaterialId);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("No folder found associated with the material", response.getBody().getError());
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> materialService.findMaterial(testMaterialId));
         verify(materialsRepo, times(1)).findById(testMaterialId);
         verify(folderRepo, times(1)).findById(testFolderId);
     }
@@ -310,17 +310,11 @@ class MaterialServiceTest {
         MaterialType type = MaterialType.BOOK;
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            materialService.findMaterialsByType(type, testFolderId);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("No folder found associated with the material", response.getBody().getError());
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> 
+            materialService.findMaterialsByType(type, testFolderId));
         verify(folderRepo, times(1)).findById(testFolderId);
-        verify(materialsRepo, times(1)).findByFolderIdAndType(testFolderId, type);
+        verify(materialsRepo, times(0)).findByFolderIdAndType(testFolderId, type);
     }
 
     @Test
@@ -341,7 +335,7 @@ class MaterialServiceTest {
         assertEquals("Not authorized", response.getBody().getError());
         verify(folderRepo, times(1)).findById(testFolderId);
         verify(authorizationCheck, times(1)).checkAuthorization(testUserId);
-        verify(materialsRepo, times(1)).findByFolderIdAndType(testFolderId, type);
+        verify(materialsRepo, times(0)).findByFolderIdAndType(testFolderId, type);
     }
 
     @Test
@@ -406,15 +400,9 @@ class MaterialServiceTest {
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.of(testMaterial));
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.updateMaterial(testMaterialId, materialAddDTO);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("No folder found associated with the material", response.getBody().getError());
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> 
+            materialService.updateMaterial(testMaterialId, materialAddDTO));
         verify(materialsRepo, times(1)).findById(testMaterialId);
         verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(0)).save(any());
@@ -485,15 +473,8 @@ class MaterialServiceTest {
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.of(testMaterial));
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
-        // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            materialService.deleteMaterial(testMaterialId);
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("No folder found associated with the material", response.getBody().getError());
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> materialService.deleteMaterial(testMaterialId));
         verify(materialsRepo, times(1)).findById(testMaterialId);
         verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(0)).delete(any());
@@ -538,7 +519,7 @@ class MaterialServiceTest {
             testFolderId
         );
 
-        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
+        when(folderRepo.existsById(testFolderId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
             .thenReturn(expectedResponse);
 
@@ -552,7 +533,26 @@ class MaterialServiceTest {
         assertNotNull(response.getBody());
         assertNotNull(response.getBody().getData());
         assertEquals(expectedResponse, response.getBody().getData());
-        verify(folderRepo, times(1)).findById(testFolderId);
+        verify(folderRepo, times(1)).existsById(testFolderId);
         verify(saveMaterialUtil, times(1)).saveMaterialFile(materialData);
+    }
+
+    @Test
+    void saveMaterial_IOException() throws IOException {
+        // Arrange
+        when(folderRepo.existsById(testFolderId)).thenReturn(true);
+        when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
+            .thenThrow(new MaterialSaveException("Failed to save material file", new IOException("Test IO error")));
+
+        // Act & Assert
+        MaterialOperationException exception = assertThrows(MaterialOperationException.class, () -> 
+            materialService.saveMaterial(materialAddDTO));
+        assertEquals("Failed to save material", exception.getMessage());
+        assertTrue(exception.getCause() instanceof MaterialSaveException);
+        assertEquals("Failed to save material file", exception.getCause().getMessage());
+        assertTrue(exception.getCause().getCause() instanceof IOException);
+        assertEquals("Test IO error", exception.getCause().getCause().getMessage());
+        verify(folderRepo, times(1)).existsById(testFolderId);
+        verify(saveMaterialUtil, times(1)).saveMaterialFile(materialAddDTO);
     }
 } 

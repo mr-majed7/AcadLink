@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -117,7 +116,7 @@ class SaveMaterialUtilTest {
     @Test
     void saveMaterialFile_Success() throws IOException {
         // Arrange
-        when(folderRepo.findById(eq(testFolderId))).thenReturn(Optional.of(testFolder));
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(materialsRepo.save(any(Materials.class))).thenAnswer(invocation -> {
             Materials savedMaterial = invocation.getArgument(0);
             savedMaterial.setId(testMaterialId);
@@ -135,30 +134,30 @@ class SaveMaterialUtilTest {
         assertEquals(testFolderId, response.getFolderId());
         assertNotNull(response.getLink());
         assertTrue(response.getLink().contains(testStoragePath));
-        verify(folderRepo, times(1)).findById(eq(testFolderId));
+        verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(1)).save(any(Materials.class));
     }
 
     @Test
     void saveMaterialFile_FolderNotFound() {
         // Arrange
-        when(folderRepo.findById(eq(testFolderId))).thenReturn(Optional.empty());
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(ResourceNotFoundException.class, () -> saveMaterialUtil.saveMaterialFile(materialAddDTO));
-        verify(folderRepo, times(1)).findById(eq(testFolderId));
+        verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(0)).save(any());
     }
 
     @Test
     void saveMaterialFile_IOException() throws IOException {
         // Arrange
-        when(folderRepo.findById(eq(testFolderId))).thenReturn(Optional.of(testFolder));
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(materialsRepo.save(any(Materials.class))).thenThrow(new RuntimeException("Test error"));
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> saveMaterialUtil.saveMaterialFile(materialAddDTO));
-        verify(folderRepo, times(1)).findById(eq(testFolderId));
+        verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(1)).save(any(Materials.class));
     }
 
@@ -168,7 +167,7 @@ class SaveMaterialUtilTest {
         materialAddDTO.setFile(null);
         materialAddDTO.setLink("http://example.com/test.pdf");
         materialAddDTO.setName("Test Material"); // Set name for link material
-        when(folderRepo.findById(eq(testFolderId))).thenReturn(Optional.of(testFolder));
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(materialsRepo.save(any(Materials.class))).thenAnswer(invocation -> {
             Materials savedMaterial = invocation.getArgument(0);
             savedMaterial.setId(testMaterialId);
@@ -185,7 +184,7 @@ class SaveMaterialUtilTest {
         assertEquals(MaterialType.BOOK, response.getType());
         assertEquals(Privacy.PUBLIC, response.getPrivacy());
         assertEquals(testFolderId, response.getFolderId());
-        verify(folderRepo, times(1)).findById(eq(testFolderId));
+        verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(1)).save(any(Materials.class));
     }
 
@@ -194,11 +193,11 @@ class SaveMaterialUtilTest {
         // Arrange
         materialAddDTO.setFile(null);
         materialAddDTO.setLink("http://example.com/test.pdf");
-        when(folderRepo.findById(eq(testFolderId))).thenReturn(Optional.empty());
+        when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(ResourceNotFoundException.class, () -> saveMaterialUtil.saveMaterialLink(materialAddDTO));
-        verify(folderRepo, times(1)).findById(eq(testFolderId));
+        verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(0)).save(any());
     }
 } 

@@ -18,6 +18,7 @@ import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.Privacy;
+import com.majed.acadlink.exception.MaterialSaveException;
 import com.majed.acadlink.exception.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -47,46 +48,50 @@ public class SaveMaterialUtil {
      * @throws IOException if an error occurs during file operations
      */
     public MaterialResponseDTO saveMaterialFile(MaterialAddDTO materialData) throws IOException {
-        // Validate folder exists
-        Folder folder = folderRepo.findById(materialData.getFolderId())
-            .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
+        try {
+            // Validate folder exists
+            Folder folder = folderRepo.findById(materialData.getFolderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
 
-        MultipartFile file = materialData.getFile();
-        String storagePath = storageConfig.getMaterials().getPath();
-        
-        // Create storage directory if it doesn't exist
-        Path storageDir = Paths.get(storagePath);
-        Files.createDirectories(storageDir);
+            MultipartFile file = materialData.getFile();
+            String storagePath = storageConfig.getMaterials().getPath();
+            
+            // Create storage directory if it doesn't exist
+            Path storageDir = Paths.get(storagePath);
+            Files.createDirectories(storageDir);
 
-        // Generate unique filename to prevent collisions
-        String originalFilename = file.getOriginalFilename();
-        String uniqueFilename = UUID.randomUUID() + "_" + originalFilename;
-        String filePath = storageDir.resolve(uniqueFilename).toString();
+            // Generate unique filename to prevent collisions
+            String originalFilename = file.getOriginalFilename();
+            String uniqueFilename = UUID.randomUUID() + "_" + originalFilename;
+            String filePath = storageDir.resolve(uniqueFilename).toString();
 
-        // Save the file
-        file.transferTo(new File(filePath));
+            // Save the file
+            file.transferTo(new File(filePath));
 
-        // Save to database
-        Materials material = new Materials();
-        material.setFolder(folder);
-        material.setName(originalFilename);
-        material.setLink(filePath);
-        material.setType(materialData.getType());
-        material.setPrivacy(materialData.getPrivacy() != null ? materialData.getPrivacy() : Privacy.PUBLIC);
-        
-        Materials savedMaterial = materialsRepo.save(material);
-        if (savedMaterial == null) {
-            throw new RuntimeException("Failed to save material to database");
+            // Save to database
+            Materials material = new Materials();
+            material.setFolder(folder);
+            material.setName(originalFilename);
+            material.setLink(filePath);
+            material.setType(materialData.getType());
+            material.setPrivacy(materialData.getPrivacy() != null ? materialData.getPrivacy() : Privacy.PUBLIC);
+            
+            Materials savedMaterial = materialsRepo.save(material);
+            if (savedMaterial == null) {
+                throw new MaterialSaveException("Failed to save material to database");
+            }
+
+            return new MaterialResponseDTO(
+                savedMaterial.getId(),
+                savedMaterial.getName(),
+                savedMaterial.getLink(),
+                savedMaterial.getType(),
+                savedMaterial.getPrivacy(),
+                savedMaterial.getFolder().getId()
+            );
+        } catch (IOException e) {
+            throw new MaterialSaveException("Failed to save material file", e);
         }
-
-        return new MaterialResponseDTO(
-            savedMaterial.getId(),
-            savedMaterial.getName(),
-            savedMaterial.getLink(),
-            savedMaterial.getType(),
-            savedMaterial.getPrivacy(),
-            savedMaterial.getFolder().getId()
-        );
     }
 
     /**
@@ -111,7 +116,7 @@ public class SaveMaterialUtil {
         
         Materials savedMaterial = materialsRepo.save(material);
         if (savedMaterial == null) {
-            throw new RuntimeException("Failed to save material to database");
+            throw new MaterialSaveException("Failed to save material to database");
         }
 
         return new MaterialResponseDTO(
