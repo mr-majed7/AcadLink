@@ -36,19 +36,31 @@
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=bugs)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=mr-majed7_AcadLink&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink)
 
-## 📋 Table of Contents
+<details>
+<summary>
+  <h2 style="margin: 0; display: inline;">📑 Table of Contents ></h2>
+</summary>
 
-- [Key Features](#-key-features)
-- [Technical Stack](#-technical-stack)
-- [Security Features](#-security-features)
-- [Database Design](#-database-design)
-- [API Documentation](#-api-documentation)
-- [Getting Started](#-getting-started)
-- [Testing & Quality](#-testing--quality)
-- [Project Structure](#-project-structure)
-- [Author](#-author)
+<div style="margin-top: 1em;">
+
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [Database Design](#database-design)
+- [Testing and Quality](#testing-and-quality)
+- [Code Quality](#code-quality)
+- [Contributing](#contributing)
+- [License](#license)
+- [Author](#author)
+
+</div>
+
+</details>
 
 ## 🚀 Key Features
 
@@ -191,22 +203,19 @@ backend/
 - JaCoCo for code coverage reporting
 - Automated test execution with Maven
 
-## 👨‍💻 Author
-
-**Majedul Islam**  
-Backend Developer | CS Undergrad  
-[GitHub](https://github.com/mr-majed7) • [LinkedIn](https://www.linkedin.com/in/majedul-islam-041637220/)  
-Interested in backend systems, Java/Spring Boot.
+## 🧪 Testing and Quality
 
 ## Code Quality
 
-This project uses SonarCloud for continuous code quality monitoring. The analysis is automatically performed on every push to the main branch and on pull requests.
+AcadLink uses SonarCloud for continuous code quality monitoring. The project's code quality is automatically analyzed on every push to the main branch, ensuring:
 
-### Quality Metrics
+- Code quality metrics
+- Code coverage tracking
+- Code smells detection
+- Security vulnerability scanning
 
-- **Code Quality**: Monitored through SonarCloud's quality gates
-- **Code Coverage**: Tracked for both backend and frontend code
-- **Code Smells**: Automatically detected and reported
-- **Security Vulnerabilities**: Continuously scanned and reported
+You can view the detailed analysis on our [SonarCloud dashboard](https://sonarcloud.io/summary/new_code?id=mr-majed7_AcadLink).
 
-You can view the detailed analysis and metrics at: [SonarCloud Dashboard](https://sonarcloud.io/summary/overall?id=mr-majed7_AcadLink&branch=main)
+## Author
+
+**Majed** - [GitHub Profile](https://github.com/mr-majed7)
