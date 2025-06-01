@@ -41,7 +41,6 @@ class MaterialsControllerTest {
     private MaterialsController materialsController;
 
     private UUID testFolderId;
-    private UUID testMaterialId;
     private MockMultipartFile mockMultipartFile;
     private MaterialAddDTO materialAddDTO;
     private MaterialResponseDTO sampleMaterial1;
@@ -51,7 +50,6 @@ class MaterialsControllerTest {
     @BeforeEach
     void setUp() {
         testFolderId = UUID.randomUUID();
-        testMaterialId = UUID.randomUUID();
 
         // Setup sample materials
         sampleMaterial1 = new MaterialResponseDTO(

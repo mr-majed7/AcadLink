@@ -1,5 +1,13 @@
 package com.majed.acadlink.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
@@ -11,14 +19,8 @@ import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.utility.AuthorizationCheck;
 import com.majed.acadlink.utility.GetUserUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service class for managing folders.
@@ -26,6 +28,8 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class FolderService {
+    private static final String NO_USER_FOUND_MESSAGE = "No user found";
+    
     private final FolderRepo folderRepo;
     private final GetUserUtil getUserUtil;
     private final AuthorizationCheck authorizationCheck;
@@ -64,7 +68,7 @@ public class FolderService {
             return ApiResponse.success(response, HttpStatus.CREATED);
         } else {
             log.error("User does not exists");
-            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
+            return ApiResponse.error(NO_USER_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -84,7 +88,7 @@ public class FolderService {
                     .toList();
             return ApiResponse.success(folderList, HttpStatus.OK);
         } else {
-            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
+            return ApiResponse.error(NO_USER_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -97,7 +101,7 @@ public class FolderService {
     public ResponseEntity<ApiResponse<FolderResponseDTO>> getFolder(UUID folderId) {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
         if (user.isEmpty()) {
-            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
+            return ApiResponse.error(NO_USER_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         } else {
             if (!authorizationCheck.checkAuthorization(user.get().getId())) {
                 return ApiResponse.error("Not Authorized", HttpStatus.FORBIDDEN);
@@ -132,7 +136,7 @@ public class FolderService {
             FolderCreateDTO newData) {
         Optional<User> user = getUserUtil.getAuthenticatedUser();
         if (user.isEmpty()) {
-            return ApiResponse.error("No user found", HttpStatus.BAD_REQUEST);
+            return ApiResponse.error(NO_USER_FOUND_MESSAGE, HttpStatus.BAD_REQUEST);
         }
 
         if (!authorizationCheck.checkAuthorization(user.get().getId())) {

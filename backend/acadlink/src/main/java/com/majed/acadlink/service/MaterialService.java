@@ -1,5 +1,18 @@
 package com.majed.acadlink.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.majed.acadlink.domain.entitie.Folder;
 import com.majed.acadlink.domain.entitie.Materials;
 import com.majed.acadlink.domain.repository.FolderRepo;
@@ -9,34 +22,23 @@ import com.majed.acadlink.dto.material.MaterialAddDTO;
 import com.majed.acadlink.dto.material.MaterialResponseDTO;
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.utility.AuthorizationCheck;
-import com.majed.acadlink.utility.GetUserUtil;
 import com.majed.acadlink.utility.SaveMaterialUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service class for managing materials.
  */
 @Service
 @Slf4j
-
 public class MaterialService {
+    private static final String NO_FOLDER_FOUND_MESSAGE = "No folder found associated with the material";
+    private static final String NOT_AUTHORIZED_MESSAGE = "Not authorized";
+    
     private final FolderRepo folderRepo;
     private final MaterialsRepo materialsRepo;
     private final SaveMaterialUtil saveMaterialUtil;
     private final AuthorizationCheck authorizationCheck;
-    private final GetUserUtil getUserUtil;
 
     /**
      * Constructor for MaterialService.
@@ -45,20 +47,17 @@ public class MaterialService {
      * @param materialsRepo      the materials repository
      * @param saveMaterialUtil   utility to save material files and links
      * @param authorizationCheck utility to check user authorization
-     * @param getUserUtil        utility to get current user
      */
     public MaterialService(
             FolderRepo folderRepo,
             MaterialsRepo materialsRepo,
             SaveMaterialUtil saveMaterialUtil,
-            AuthorizationCheck authorizationCheck,
-            GetUserUtil getUserUtil
+            AuthorizationCheck authorizationCheck
     ) {
         this.folderRepo = folderRepo;
         this.materialsRepo = materialsRepo;
         this.saveMaterialUtil = saveMaterialUtil;
         this.authorizationCheck = authorizationCheck;
-        this.getUserUtil = getUserUtil;
     }
 
     /**
@@ -98,10 +97,10 @@ public class MaterialService {
         }
         Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
         if (folder.isEmpty()) {
-            return ApiResponse.error("No folder found associated with the material", HttpStatus.NOT_FOUND);
+            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
         if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
-            return ApiResponse.error("Not authorized", HttpStatus.FORBIDDEN);
+            return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
         MaterialResponseDTO materialResponse = material.map(
                 value -> new MaterialResponseDTO(value.getId(), value.getName(), value.getLink(),
@@ -122,10 +121,10 @@ public class MaterialService {
         List<Materials> materials = materialsRepo.findByFolderIdAndType(folderId, type);
         Optional<Folder> folder = folderRepo.findById(folderId);
         if (folder.isEmpty()) {
-            return ApiResponse.error("No folder found associated with the material", HttpStatus.NOT_FOUND);
+            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
         if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
-            return ApiResponse.error("Not authorized", HttpStatus.FORBIDDEN);
+            return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
         List<MaterialResponseDTO> materialList = materials.stream().map(
                 value -> new MaterialResponseDTO(value.getId(), value.getName(),
@@ -150,10 +149,10 @@ public class MaterialService {
         }
         Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
         if (folder.isEmpty()) {
-            return ApiResponse.error("No folder found associated with the material", HttpStatus.NOT_FOUND);
+            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
         if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
-            return ApiResponse.error("Not authorized", HttpStatus.FORBIDDEN);
+            return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
 
         Materials current = material.get();
@@ -200,13 +199,12 @@ public class MaterialService {
         }
         Optional<Folder> folder = folderRepo.findById(material.get().getFolder().getId());
         if (folder.isEmpty()) {
-            return ApiResponse.error("No folder found associated with the material", HttpStatus.NOT_FOUND);
+            return ApiResponse.error(NO_FOLDER_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
         }
         if (!authorizationCheck.checkAuthorization(folder.get().getUser().getId())) {
-            return ApiResponse.error("Not authorized", HttpStatus.FORBIDDEN);
+            return ApiResponse.error(NOT_AUTHORIZED_MESSAGE, HttpStatus.FORBIDDEN);
         }
         materialsRepo.delete(material.get());
         return ApiResponse.success(true, HttpStatus.OK);
     }
-
 }

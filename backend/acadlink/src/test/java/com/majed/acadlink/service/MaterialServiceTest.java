@@ -275,8 +275,18 @@ class MaterialServiceTest {
         assertNotNull(response.getBody());
         assertNotNull(response.getBody().getData());
         assertEquals(1, response.getBody().getData().size());
-        assertEquals(testMaterialId, response.getBody().getData().get(0).getId());
+        
+        MaterialResponseDTO materialResponse = response.getBody().getData().get(0);
+        assertEquals(testMaterialId, materialResponse.getId());
+        assertEquals(testMaterial.getName(), materialResponse.getName());
+        assertEquals(testMaterial.getLink(), materialResponse.getLink());
+        assertEquals(testMaterial.getType(), materialResponse.getType());
+        assertEquals(testMaterial.getPrivacy(), materialResponse.getPrivacy());
+        assertEquals(testFolderId, materialResponse.getFolderId());
+        
         verify(materialsRepo, times(1)).findByFolderIdAndType(testFolderId, type);
+        verify(folderRepo, times(1)).findById(testFolderId);
+        verify(authorizationCheck, times(1)).checkAuthorization(testUserId);
     }
 
     @Test
