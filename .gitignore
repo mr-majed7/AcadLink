@@ -1,3 +1,12 @@
 node_modules/
 /application.yml
 application.yml
+
+# IDE directories
+.idea/
+.vscode/
+
+# Storage directory
+backend/acadlink/storage/
+
+
