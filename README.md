@@ -13,7 +13,7 @@
 [![Mockito](https://img.shields.io/badge/Mockito-78A641?style=flat&logo=mockito&logoColor=white)](https://site.mockito.org/)
 
 <div align="center">
-  <h2>Academic Collaboration Made Simple</h2>
+  <h2>Academic Resource Discovery and Management Made Easy</h2>
   
   <p align="center">
     <b>AcadLink</b> is a modern academic collaboration platform that enables students to share and manage educational materials while connecting with peers.
