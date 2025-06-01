@@ -1,12 +1,16 @@
-# AcadLink 📚
 
-[![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.java.com/)
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)](https://jwt.io/)
-[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://swagger.io/)
-[![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)](https://maven.apache.org/)
-[![SonarCloud](https://img.shields.io/badge/SonarCloud-F3702A?style=for-the-badge&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/)
+# <div align="center"><img src="docs/Logo.png" alt="AcadLink" height="40" style="vertical-align: middle;"/> AcadLink</div>
+
+[![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://www.java.com/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-data-jpa)
+[![MySQL](https://img.shields.io/badge/MySQL-00000F?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=JSON%20web%20tokens&logoColor=white)](https://jwt.io/)
+[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=flat&logo=swagger&logoColor=black)](https://swagger.io/)
+[![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat&logo=apache-maven&logoColor=white)](https://maven.apache.org/)
+[![SonarCloud](https://img.shields.io/badge/SonarCloud-F3702A?style=flat&logo=sonarcloud&logoColor=white)](https://sonarcloud.io/)
+[![JUnit5](https://img.shields.io/badge/JUnit5-25A162?style=flat&logo=junit5&logoColor=white)](https://junit.org/junit5/)
+[![Mockito](https://img.shields.io/badge/Mockito-78A641?style=flat&logo=mockito&logoColor=white)](https://site.mockito.org/)
 
 <div align="center">
   <h2>Academic Collaboration Made Simple</h2>
@@ -39,7 +43,7 @@
 
 <details>
 <summary>
-  <h2 style="margin: 0; display: inline;">📑 Table of Contents ></h2>
+  <h2 style="margin: 0; display: inline;">📑 Table of Contents</h2>
 </summary>
 
 <div style="margin-top: 1em;">
@@ -195,7 +199,7 @@ backend/
 - `test/java/com/majed/acadlink/`: Test cases
 - `pom.xml`: Maven build file
 
-## 🧪 Testing & Quality
+## 🧪 Testing and Quality
 
 - Comprehensive unit testing with JUnit 5
 - Mockito for mocking dependencies
@@ -203,9 +207,7 @@ backend/
 - JaCoCo for code coverage reporting
 - Automated test execution with Maven
 
-## 🧪 Testing and Quality
-
-## Code Quality
+## <img src="https://img.shields.io/badge/-4CAF50?style=flat&logo=check&logoColor=white" alt="Quality" height="20"/> Code Quality
 
 AcadLink uses SonarCloud for continuous code quality monitoring. The project's code quality is automatically analyzed on every push to the main branch, ensuring:
 
@@ -218,4 +220,7 @@ You can view the detailed analysis on our [SonarCloud dashboard](https://sonarcl
 
 ## Author
 
-**Majed** - [GitHub Profile](https://github.com/mr-majed7)
+**Majedul Islam**  
+Backend Developer | CS Undergrad  
+[GitHub](https://github.com/mr-majed7) • [LinkedIn](https://www.linkedin.com/in/majedul-islam-041637220/)  
+Interesed in backend systems, Java/Spring Boot.
