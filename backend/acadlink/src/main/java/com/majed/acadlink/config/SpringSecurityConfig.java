@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.majed.acadlink.utility.EmailVerificationFilter;
 import com.majed.acadlink.utility.JWTFilter;
 
 /**
@@ -20,13 +21,16 @@ import com.majed.acadlink.utility.JWTFilter;
  * 2. Configures endpoint security
  * 3. Manages password encoding
  * 4. Handles authentication manager setup
+ * 5. Enforces email verification for protected endpoints
  */
 @Configuration
 public class SpringSecurityConfig {
     private final JWTFilter jwtFilter;
+    private final EmailVerificationFilter emailVerificationFilter;
 
-    public SpringSecurityConfig(JWTFilter jwtFilter) {
+    public SpringSecurityConfig(JWTFilter jwtFilter, EmailVerificationFilter emailVerificationFilter) {
         this.jwtFilter = jwtFilter;
+        this.emailVerificationFilter = emailVerificationFilter;
     }
 
     /**
@@ -50,9 +54,14 @@ public class SpringSecurityConfig {
      * 
      * 3. Endpoint Security:
      *    - /v1/public/**: Public access
-     *    - /v1/folder/**, /v1/user/**, /v1/material/**, /v1/peers/**: Authenticated access
+     *    - /v1/folder/**, /v1/user/**, /v1/material/**, /v1/peers/**: Authenticated access + Email verification required
      *    - /admin/**: Admin role required
      *    - All other endpoints: Public access
+     *
+     * 4. Email Verification:
+     *    - Required for all protected endpoints
+     *    - Skip verification for public endpoints and email verification endpoints
+     *    - Returns 403 Forbidden if email is not verified
      *
      * @param http the HttpSecurity to configure
      * @return the configured SecurityFilterChain
@@ -69,6 +78,7 @@ public class SpringSecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(emailVerificationFilter, JWTFilter.class)
                 // CSRF protection is disabled as we use JWT tokens in Authorization header
                 // This is safe because:
                 // 1. JWT tokens are not stored in cookies
