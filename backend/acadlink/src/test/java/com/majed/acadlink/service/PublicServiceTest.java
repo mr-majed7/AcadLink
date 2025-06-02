@@ -35,8 +35,6 @@ import com.majed.acadlink.dto.user.UserResponseDTO;
 import com.majed.acadlink.dto.user.UserSignUpDTO;
 import com.majed.acadlink.utility.JWTUtil;
 
-import io.vavr.control.Either;
-
 @ExtendWith(MockitoExtension.class)
 class PublicServiceTest {
 
@@ -109,8 +107,8 @@ class PublicServiceTest {
     @Test
     void addUser_Success() {
         // Arrange
-        when(userDetailsService.loadUserByUsername(validSignUpDTO.getEmail())).thenReturn(null);
-        when(userDetailsService.loadUserByUsername(validSignUpDTO.getUserName())).thenReturn(null);
+        when(userRepo.findByEmail(validSignUpDTO.getEmail())).thenReturn(Optional.empty());
+        when(userRepo.findByUsername(validSignUpDTO.getUserName())).thenReturn(Optional.empty());
         when(userService.createUser(any(UserSignUpDTO.class))).thenReturn(validUserResponse);
 
         // Act
@@ -119,20 +117,17 @@ class PublicServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertTrue(response.getBody() instanceof Either);
-        Either<?, ?> responseBody = (Either<?, ?>) response.getBody();
-        assertTrue(responseBody.isRight());
-        assertEquals(validUserResponse, responseBody.get());
-        verify(userDetailsService, times(1)).loadUserByUsername(validSignUpDTO.getEmail());
-        verify(userDetailsService, times(1)).loadUserByUsername(validSignUpDTO.getUserName());
+        assertEquals(validUserResponse, response.getBody());
+        verify(userRepo, times(1)).findByEmail(validSignUpDTO.getEmail());
+        verify(userRepo, times(1)).findByUsername(validSignUpDTO.getUserName());
         verify(userService, times(1)).createUser(validSignUpDTO);
     }
 
     @Test
     void addUser_EmailExists_ReturnsBadRequest() {
         // Arrange
-        when(userDetailsService.loadUserByUsername(validSignUpDTO.getEmail())).thenReturn(mockUserDetails);
-        // Don't mock userName check since it should fail at email check
+        when(userRepo.findByEmail(validSignUpDTO.getEmail())).thenReturn(Optional.of(mockUser));
+        // Don't mock username check since it should fail at email check
 
         // Act
         ResponseEntity<Object> response = publicService.addUser(validSignUpDTO);
@@ -140,20 +135,18 @@ class PublicServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof Either);
-        Either<?, ?> responseBody = (Either<?, ?>) response.getBody();
-        assertTrue(responseBody.isLeft());
-        ErrorResponseDTO error = (ErrorResponseDTO) responseBody.getLeft();
+        assertTrue(response.getBody() instanceof ErrorResponseDTO);
+        ErrorResponseDTO error = (ErrorResponseDTO) response.getBody();
         assertEquals("User exists with this email", error.getMessage());
-        verify(userDetailsService, times(1)).loadUserByUsername(validSignUpDTO.getEmail());
-        verify(userDetailsService, times(0)).loadUserByUsername(validSignUpDTO.getUserName());
+        verify(userRepo, times(1)).findByEmail(validSignUpDTO.getEmail());
+        verify(userRepo, times(0)).findByUsername(validSignUpDTO.getUserName());
     }
 
     @Test
     void addUser_UsernameExists_ReturnsBadRequest() {
         // Arrange
-        when(userDetailsService.loadUserByUsername(validSignUpDTO.getEmail())).thenReturn(null);
-        when(userDetailsService.loadUserByUsername(validSignUpDTO.getUserName())).thenReturn(mockUserDetails);
+        when(userRepo.findByEmail(validSignUpDTO.getEmail())).thenReturn(Optional.empty());
+        when(userRepo.findByUsername(validSignUpDTO.getUserName())).thenReturn(Optional.of(mockUser));
 
         // Act
         ResponseEntity<Object> response = publicService.addUser(validSignUpDTO);
@@ -161,13 +154,11 @@ class PublicServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof Either);
-        Either<?, ?> responseBody = (Either<?, ?>) response.getBody();
-        assertTrue(responseBody.isLeft());
-        ErrorResponseDTO error = (ErrorResponseDTO) responseBody.getLeft();
+        assertTrue(response.getBody() instanceof ErrorResponseDTO);
+        ErrorResponseDTO error = (ErrorResponseDTO) response.getBody();
         assertEquals("User exists with this username", error.getMessage());
-        verify(userDetailsService, times(1)).loadUserByUsername(validSignUpDTO.getEmail());
-        verify(userDetailsService, times(1)).loadUserByUsername(validSignUpDTO.getUserName());
+        verify(userRepo, times(1)).findByEmail(validSignUpDTO.getEmail());
+        verify(userRepo, times(1)).findByUsername(validSignUpDTO.getUserName());
     }
 
     @Test
