@@ -19,11 +19,11 @@ public class GetUserUtil {
 
     private String getAuthenticatedUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
+        return authentication != null ? authentication.getName() : null;
     }
 
     public Optional<User> getAuthenticatedUser() {
         String username = getAuthenticatedUsername();
-        return userRepo.findByUsername(username);
+        return username != null ? userRepo.findByUsername(username) : Optional.empty();
     }
 }
