@@ -27,10 +27,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Controller for handling email verification operations.
- * This controller provides endpoints for:
- * 1. Verifying email addresses using OTP
- * 2. Resending verification codes
+ * Controller for handling email verification operations in the AcadLink application.
+ * This controller provides endpoints for email verification and OTP management.
+ * It integrates with the following services:
+ * - VerificationCodeService: Manages OTP generation and validation
+ * - EmailService: Handles sending verification emails
+ * - UserService: Manages user data and verification status
+ *
+ * <p>The controller enforces email verification as a security measure to ensure
+ * that users have access to the email addresses they register with. This helps
+ * prevent spam accounts and ensures reliable communication with users.</p>
+ *
+ * <p>Security Considerations:
+ * - All endpoints are public (no authentication required)
+ * - Rate limiting should be implemented at the application level
+ * - OTP codes expire after 5 minutes
+ * - Failed verification attempts are logged for security monitoring</p>
+ *
  */
 @Tag(name = "2. Email Verification", description = "Endpoints for email verification and OTP management")
 @RestController
@@ -43,14 +56,36 @@ public class EmailVerificationController {
     private final UserService userService;
 
     /**
-     * Verifies a user's email address using the provided OTP.
+     * Verifies a user's email address using the provided OTP code.
+     * This endpoint is part of the email verification flow and should be called
+     * after the user receives the verification code via email.
      *
-     * @param request the email verification request containing email and OTP
-     * @return response indicating the verification status
+     * <p>Process Flow:
+     * 1. Validates the user exists with the provided email
+     * 2. Checks if the email is already verified
+     * 3. Validates the OTP code against the stored code
+     * 4. Updates the user's verification status if valid
+     * 5. Removes the used verification code from storage</p>
+     *
+     * <p>Error Handling:
+     * - Returns 400 if user not found
+     * - Returns 400 if OTP is invalid
+     * - Returns 400 if email is already verified
+     * - Returns 400 for any unexpected errors</p>
+     *
+     * @param request the email verification request containing:
+     *               - email: The email address to verify
+     *               - otp: The one-time password code received via email
+     * @return ResponseEntity containing:
+     *         - 200 OK with success message if verification successful
+     *         - 400 Bad Request with error message if verification fails
+     * @throws ResourceNotFoundException if user not found
+     * @throws EmailVerificationException if verification process fails
      */
     @Operation(
         summary = "Verify email address",
-        description = "Verifies a user's email address using the provided OTP code",
+        description = "Verifies a user's email address using the provided OTP code. " +
+                     "The OTP code must be entered within 5 minutes of being sent.",
         tags = {"2. Email Verification"}
     )
     @ApiResponses(value = {
@@ -109,13 +144,34 @@ public class EmailVerificationController {
 
     /**
      * Resends the verification code to the user's email address.
+     * This endpoint can be used if the original verification code expires
+     * or if the user did not receive the initial verification email.
      *
-     * @param email the email address to resend the verification code to
-     * @return response indicating the status of the resend operation
+     * <p>Process Flow:
+     * 1. Validates the user exists with the provided email
+     * 2. Checks if the email is already verified
+     * 3. Generates a new OTP code
+     * 4. Stores the new code with expiration
+     * 5. Sends a new verification email</p>
+     *
+     * <p>Error Handling:
+     * - Returns 400 if user not found
+     * - Returns 400 if email is already verified
+     * - Returns 400 if email sending fails
+     * - Returns 400 for any unexpected errors</p>
+     *
+     * @param email the email address to resend the verification code to.
+     *             Must be a valid email format and belong to an existing user
+     * @return ResponseEntity containing:
+     *         - 200 OK with success message if code sent successfully
+     *         - 400 Bad Request with error message if resend fails
+     * @throws ResourceNotFoundException if user not found
+     * @throws EmailVerificationException if email sending fails
      */
     @Operation(
         summary = "Resend verification code",
-        description = "Resends the verification code to the user's email address",
+        description = "Resends the verification code to the user's email address. " +
+                     "Use this endpoint if the original code expired or was not received.",
         tags = {"2. Email Verification"}
     )
     @ApiResponses(value = {
