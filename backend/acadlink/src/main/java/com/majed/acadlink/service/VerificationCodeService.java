@@ -187,7 +187,7 @@ public class VerificationCodeService {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    private static class VerificationCodeData {
+    static class VerificationCodeData {
         /** The actual verification code */
         private String code;
         /** Timestamp when the code was generated */

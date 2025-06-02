@@ -97,31 +97,56 @@ public class EmailVerificationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.isAuthenticated()) {
-                String username = authentication.getName();
-                User user = userRepo.findByUsername(username)
-                        .orElseThrow(() -> new ServletException("User not found"));
+        // Skip filter for unauthenticated requests
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-                if (!user.isEmailVerified()) {
-                    log.warn("Unauthorized access attempt: User {} has not verified their email", username);
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
-                    response.setContentType("application/json");
-                    response.getWriter().write(objectMapper.writeValueAsString(
-                            ApiResponse.error("Please verify your email before accessing this resource", 
-                                    HttpStatus.FORBIDDEN)));
-                    return;
-                }
+        // Get username from authentication
+        String username = authentication.getName();
+        if (username == null || username.trim().isEmpty()) {
+            log.error("Username is null or empty in authentication");
+            sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, 
+                "Internal server error during email verification check");
+            return;
+        }
+
+        try {
+            // Look up user
+            User user = userRepo.findByUsername(username)
+                    .orElse(null);
+
+            // Handle user not found
+            if (user == null) {
+                log.error("User not found in email verification filter: {}", username);
+                sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, 
+                    "Internal server error during email verification check");
+                return;
             }
+
+            // Check email verification
+            if (!user.isEmailVerified()) {
+                log.warn("Unauthorized access attempt: User {} has not verified their email", username);
+                sendErrorResponse(response, HttpStatus.FORBIDDEN, 
+                    "Please verify your email before accessing this resource");
+                return;
+            }
+
+            // User is verified, continue the filter chain
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error("Error in email verification filter: {}", e.getMessage());
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setContentType("application/json");
-            response.getWriter().write(objectMapper.writeValueAsString(
-                    ApiResponse.error("Internal server error during email verification check", 
-                            HttpStatus.INTERNAL_SERVER_ERROR)));
+            sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, 
+                "Internal server error during email verification check");
         }
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, HttpStatus status, String message) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType("application/json");
+        response.getWriter().write(objectMapper.writeValueAsString(
+            ApiResponse.error(message, status)));
     }
 } 

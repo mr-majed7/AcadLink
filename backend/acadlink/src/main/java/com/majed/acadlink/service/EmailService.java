@@ -1,6 +1,9 @@
 package com.majed.acadlink.service;
 
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class EmailService {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final String fromEmail;
@@ -72,6 +76,17 @@ public class EmailService {
      * @throws EmailVerificationException if email sending fails
      */
     public void sendVerificationEmail(String to, String otp) {
+        // Validate inputs
+        if (to == null || to.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email address cannot be null or empty");
+        }
+        if (!EMAIL_PATTERN.matcher(to).matches()) {
+            throw new IllegalArgumentException("Invalid email address format");
+        }
+        if (otp == null || otp.trim().isEmpty()) {
+            throw new IllegalArgumentException("OTP cannot be null or empty");
+        }
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -92,7 +107,7 @@ public class EmailService {
             mailSender.send(message);
 
             log.info("Verification email sent to: {}", to);
-        } catch (MessagingException e) {
+        } catch (MessagingException | MailException e) {
             log.error("Failed to send verification email to {}: {}", to, e.getMessage());
             throw new EmailVerificationException("Failed to send verification email to " + to, e);
         }
