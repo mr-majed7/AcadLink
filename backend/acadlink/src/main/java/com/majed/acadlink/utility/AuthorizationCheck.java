@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.User;
 
 @Component
 public class AuthorizationCheck {

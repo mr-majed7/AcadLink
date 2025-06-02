@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.majed.acadlink.domain.entitie.Folder;
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.Folder;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FolderService {
     private static final String NO_USER_FOUND_MESSAGE = "No user found";
-    
+
     private final FolderRepo folderRepo;
     private final GetUserUtil getUserUtil;
     private final AuthorizationCheck authorizationCheck;

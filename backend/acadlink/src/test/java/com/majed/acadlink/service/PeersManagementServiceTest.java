@@ -23,8 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.majed.acadlink.domain.entitie.Peers;
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.Peers;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.PeersRepo;
 import com.majed.acadlink.domain.repository.UserRepo;
 import com.majed.acadlink.dto.ApiResponse;
@@ -96,13 +96,13 @@ class PeersManagementServiceTest {
         String searchEntry = "jane";
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(userRepo.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(searchEntry, searchEntry))
-            .thenReturn(Arrays.asList(peerUser));
+                .thenReturn(Arrays.asList(peerUser));
         when(peersRepo.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(testUserId, testPeerId, testUserId, testPeerId))
-            .thenReturn(null);
+                .thenReturn(null);
 
         // Act
-        ResponseEntity<ApiResponse<List<SearchResultDTO>>> response = 
-            peersManagementService.searchUsers(searchEntry);
+        ResponseEntity<ApiResponse<List<SearchResultDTO>>> response =
+                peersManagementService.searchUsers(searchEntry);
 
         // Assert
         assertNotNull(response);
@@ -121,8 +121,8 @@ class PeersManagementServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<List<SearchResultDTO>>> response = 
-            peersManagementService.searchUsers(searchEntry);
+        ResponseEntity<ApiResponse<List<SearchResultDTO>>> response =
+                peersManagementService.searchUsers(searchEntry);
 
         // Assert
         assertNotNull(response);
@@ -137,13 +137,13 @@ class PeersManagementServiceTest {
         // Arrange
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(peersRepo.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(testUserId, testPeerId, testUserId, testPeerId))
-            .thenReturn(null);
+                .thenReturn(null);
         when(userRepo.findById(testPeerId)).thenReturn(Optional.of(peerUser));
         when(peersRepo.save(any(Peers.class))).thenReturn(testPeer);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.addPeer(testPeerId);
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.addPeer(testPeerId);
 
         // Assert
         assertNotNull(response);
@@ -159,11 +159,11 @@ class PeersManagementServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         testPeer.setStatus(PeerStatus.ACCEPTED);
         when(peersRepo.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(testUserId, testPeerId, testUserId, testPeerId))
-            .thenReturn(testPeer);
+                .thenReturn(testPeer);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.addPeer(testPeerId);
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.addPeer(testPeerId);
 
         // Assert
         assertNotNull(response);
@@ -179,11 +179,11 @@ class PeersManagementServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         testPeer.setStatus(PeerStatus.PENDING);
         when(peersRepo.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(testUserId, testPeerId, testUserId, testPeerId))
-            .thenReturn(testPeer);
+                .thenReturn(testPeer);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.addPeer(testPeerId);
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.addPeer(testPeerId);
 
         // Assert
         assertNotNull(response);
@@ -198,12 +198,12 @@ class PeersManagementServiceTest {
         // Arrange
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(peersRepo.findByUser1IdAndStatus(testUserId, PeerStatus.PENDING))
-            .thenReturn(Arrays.asList(testPeer));
+                .thenReturn(Arrays.asList(testPeer));
         when(userRepo.findById(testPeerId)).thenReturn(Optional.of(peerUser));
 
         // Act
-        ResponseEntity<ApiResponse<List<PeerInfoDTO>>> response = 
-            peersManagementService.getRequests(ReqType.SENT);
+        ResponseEntity<ApiResponse<List<PeerInfoDTO>>> response =
+                peersManagementService.getRequests(ReqType.SENT);
 
         // Assert
         assertNotNull(response);
@@ -220,13 +220,13 @@ class PeersManagementServiceTest {
         // Arrange
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(peersRepo.findByUser2IdAndStatus(testUserId, PeerStatus.PENDING))
-            .thenReturn(Arrays.asList(testPeer));
+                .thenReturn(Arrays.asList(testPeer));
         // Use lenient stubbing to handle any UUID argument
         lenient().when(userRepo.findById(any(UUID.class))).thenReturn(Optional.of(peerUser));
 
         // Act
-        ResponseEntity<ApiResponse<List<PeerInfoDTO>>> response = 
-            peersManagementService.getRequests(ReqType.RECEIVED);
+        ResponseEntity<ApiResponse<List<PeerInfoDTO>>> response =
+                peersManagementService.getRequests(ReqType.RECEIVED);
 
         // Assert
         assertNotNull(response);
@@ -244,11 +244,11 @@ class PeersManagementServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         testPeer.setStatus(PeerStatus.ACCEPTED);
         when(peersRepo.findByUser1IdOrUser2IdAndStatus(testUserId, testUserId, PeerStatus.ACCEPTED))
-            .thenReturn(Arrays.asList(testPeer));
+                .thenReturn(Arrays.asList(testPeer));
 
         // Act
-        ResponseEntity<ApiResponse<List<PeerInfoDTO>>> response = 
-            peersManagementService.findPeers();
+        ResponseEntity<ApiResponse<List<PeerInfoDTO>>> response =
+                peersManagementService.findPeers();
 
         // Assert
         assertNotNull(response);
@@ -268,8 +268,8 @@ class PeersManagementServiceTest {
         when(peersRepo.save(any(Peers.class))).thenReturn(testPeer);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.acceptRequest(testPeer.getId());
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.acceptRequest(testPeer.getId());
 
         // Assert
         assertNotNull(response);
@@ -288,8 +288,8 @@ class PeersManagementServiceTest {
         when(authorizationCheck.checkAuthorization(testPeerId)).thenReturn(false);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.acceptRequest(testPeer.getId());
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.acceptRequest(testPeer.getId());
 
         // Assert
         assertNotNull(response);
@@ -306,8 +306,8 @@ class PeersManagementServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.removePeer(testPeer.getId());
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.removePeer(testPeer.getId());
 
         // Assert
         assertNotNull(response);
@@ -325,8 +325,8 @@ class PeersManagementServiceTest {
         when(authorizationCheck.checkAuthorization(testPeerId)).thenReturn(false);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.removePeer(testPeer.getId());
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.removePeer(testPeer.getId());
 
         // Assert
         assertNotNull(response);
@@ -342,8 +342,8 @@ class PeersManagementServiceTest {
         when(peersRepo.findById(testPeer.getId())).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            peersManagementService.removePeer(testPeer.getId());
+        ResponseEntity<ApiResponse<Boolean>> response =
+                peersManagementService.removePeer(testPeer.getId());
 
         // Assert
         assertNotNull(response);

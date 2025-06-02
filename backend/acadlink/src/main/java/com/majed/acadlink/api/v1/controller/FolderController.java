@@ -1,24 +1,32 @@
 package com.majed.acadlink.api.v1.controller;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;
 import com.majed.acadlink.dto.folder.FolderCreateDTO;
 import com.majed.acadlink.dto.folder.FolderResponseDTO;
 import com.majed.acadlink.dto.folder.UpdateFolderResponseDTO;
 import com.majed.acadlink.service.FolderService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Controller for managing folders.
  */
-@Tag(name = "3. Folder Management", description = "Endpoints for managing folders")
+@Tag(name = "4. Folder Management", description = "Endpoints for managing folders")
 @RestController
 @RequestMapping("/folder")
 @Slf4j
@@ -40,7 +48,7 @@ public class FolderController {
      * @param folderData the data for the new folder
      * @return the response entity containing the added folder or an error status
      */
-    @Operation(summary = "Create a new folder", tags = {"3. Folder Management"})
+    @Operation(summary = "Create a new folder", tags = {"4. Folder Management"})
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<AllFolderResponseDTO>> createFolder(@RequestBody FolderCreateDTO folderData) {
         return folderService.addFolder(folderData);
@@ -51,7 +59,7 @@ public class FolderController {
      *
      * @return the response entity containing the list of all folders or an error status
      */
-    @Operation(summary = "Get all folders", tags = {"3. Folder Management"})
+    @Operation(summary = "Get all folders", tags = {"4. Folder Management"})
     @GetMapping("/get-all")
     public ResponseEntity<ApiResponse<List<AllFolderResponseDTO>>> getAllFolders() {
         return folderService.getAllFolders();
@@ -63,7 +71,7 @@ public class FolderController {
      * @param folderId the ID of the folder to retrieve
      * @return the response entity containing the folder or an error status
      */
-    @Operation(summary = "Get a specific folder by ID", tags = {"3. Folder Management"})
+    @Operation(summary = "Get a specific folder by ID", tags = {"4. Folder Management"})
     @GetMapping("/get-folder/{folderId}")
     public ResponseEntity<ApiResponse<FolderResponseDTO>> getFolder(@PathVariable UUID folderId) {
         return folderService.getFolder(folderId);
@@ -76,7 +84,7 @@ public class FolderController {
      * @param newData  the new data for the folder
      * @return the response entity containing the updated folder or an error status
      */
-    @Operation(summary = "Update a specific folder by ID", tags = {"3. Folder Management"})
+    @Operation(summary = "Update a specific folder by ID", tags = {"4. Folder Management"})
     @PutMapping("/update-folder/{folderId}")
     public ResponseEntity<ApiResponse<UpdateFolderResponseDTO>> updateFolder(@PathVariable UUID folderId,
                                                                              @RequestBody FolderCreateDTO newData) {

@@ -22,10 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.majed.acadlink.domain.entitie.Folder;
-import com.majed.acadlink.domain.entitie.Materials;
-import com.majed.acadlink.domain.entitie.Peers;
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.Folder;
+import com.majed.acadlink.domain.entity.Materials;
+import com.majed.acadlink.domain.entity.Peers;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.domain.repository.PeersRepo;
 import com.majed.acadlink.domain.repository.UserRepo;
@@ -125,15 +125,15 @@ class FindMaterialsServiceTest {
         String keywords = "material";
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(materialsRepo.searchPublicMaterials(keywords, Privacy.PUBLIC))
-            .thenReturn(List.of(publicMaterial));
+                .thenReturn(List.of(publicMaterial));
         when(materialsRepo.searchPeerMaterials(keywords, testUserId, Privacy.PEERS))
-            .thenReturn(List.of(peerMaterial));
+                .thenReturn(List.of(peerMaterial));
         when(materialsRepo.searchInstitutionalMaterials(keywords, testUser.getInstitute(), Privacy.INSTITUTIONAL))
-            .thenReturn(List.of(institutionalMaterial));
+                .thenReturn(List.of(institutionalMaterial));
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.searchMaterials(keywords);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.searchMaterials(keywords);
 
         // Assert
         assertNotNull(response);
@@ -152,8 +152,8 @@ class FindMaterialsServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.searchMaterials(keywords);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.searchMaterials(keywords);
 
         // Assert
         assertNotNull(response);
@@ -173,11 +173,11 @@ class FindMaterialsServiceTest {
         when(materialsRepo.searchPublicMaterials(keywords, Privacy.PUBLIC)).thenReturn(List.of());
         when(materialsRepo.searchPeerMaterials(keywords, testUserId, Privacy.PEERS)).thenReturn(List.of());
         when(materialsRepo.searchInstitutionalMaterials(keywords, testUser.getInstitute(), Privacy.INSTITUTIONAL))
-            .thenReturn(List.of());
+                .thenReturn(List.of());
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.searchMaterials(keywords);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.searchMaterials(keywords);
 
         // Assert
         assertNotNull(response);
@@ -195,13 +195,13 @@ class FindMaterialsServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(userRepo.findById(testPeerId)).thenReturn(Optional.of(testPeer));
         when(peersRepo.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(testUserId, testPeerId, testUserId, testPeerId))
-            .thenReturn(peerConnection);
+                .thenReturn(peerConnection);
         when(materialsRepo.findAllByUserIdAndPrivacy(testPeerId, testUser.getInstitute()))
-            .thenReturn(Arrays.asList(publicMaterial, peerMaterial, institutionalMaterial));
+                .thenReturn(Arrays.asList(publicMaterial, peerMaterial, institutionalMaterial));
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.findPeerMaterials(testPeerId);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.findPeerMaterials(testPeerId);
 
         // Assert
         assertNotNull(response);
@@ -219,8 +219,8 @@ class FindMaterialsServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.findPeerMaterials(testPeerId);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.findPeerMaterials(testPeerId);
 
         // Assert
         assertNotNull(response);
@@ -239,8 +239,8 @@ class FindMaterialsServiceTest {
         when(userRepo.findById(testPeerId)).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.findPeerMaterials(testPeerId);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.findPeerMaterials(testPeerId);
 
         // Assert
         assertNotNull(response);
@@ -258,11 +258,11 @@ class FindMaterialsServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(userRepo.findById(testPeerId)).thenReturn(Optional.of(testPeer));
         when(peersRepo.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(testUserId, testPeerId, testUserId, testPeerId))
-            .thenReturn(null);
+                .thenReturn(null);
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.findPeerMaterials(testPeerId);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.findPeerMaterials(testPeerId);
 
         // Assert
         assertNotNull(response);
@@ -281,11 +281,11 @@ class FindMaterialsServiceTest {
         when(getUserUtil.getAuthenticatedUser()).thenReturn(Optional.of(testUser));
         when(userRepo.findById(testPeerId)).thenReturn(Optional.of(testPeer));
         when(peersRepo.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(testUserId, testPeerId, testUserId, testPeerId))
-            .thenReturn(peerConnection);
+                .thenReturn(peerConnection);
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            findMaterialsService.findPeerMaterials(testPeerId);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                findMaterialsService.findPeerMaterials(testPeerId);
 
         // Assert
         assertNotNull(response);

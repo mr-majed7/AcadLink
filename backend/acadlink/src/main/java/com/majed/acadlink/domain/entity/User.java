@@ -1,4 +1,4 @@
-package com.majed.acadlink.domain.entitie;
+package com.majed.acadlink.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -43,6 +43,9 @@ public class User {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDate createdAt;
+
+    @Column(nullable = false)
+    private boolean emailVerified = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Folder> folders;

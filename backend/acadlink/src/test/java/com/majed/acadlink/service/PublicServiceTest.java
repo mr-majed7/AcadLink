@@ -26,7 +26,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.UserRepo;
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.ErrorResponseDTO;
@@ -68,7 +68,7 @@ class PublicServiceTest {
     @BeforeEach
     void setUp() {
         testUserId = UUID.randomUUID();
-        
+
         // Setup valid sign up DTO
         validSignUpDTO = new UserSignUpDTO();
         validSignUpDTO.setFirstName("John");
@@ -83,13 +83,13 @@ class PublicServiceTest {
 
         // Setup valid user response
         validUserResponse = new UserResponseDTO(
-            testUserId,
-            "John",
-            "Doe",
-            "Test University",
-            "john.doe@example.com",
-            "johndoe",
-            LocalDate.now()
+                testUserId,
+                "John",
+                "Doe",
+                "Test University",
+                "john.doe@example.com",
+                "johndoe",
+                LocalDate.now()
         );
 
         // Setup mock user
@@ -100,10 +100,10 @@ class PublicServiceTest {
 
         // Setup mock user details
         mockUserDetails = org.springframework.security.core.userdetails.User
-            .withUsername("johndoe")
-            .password("password123")
-            .authorities("ROLE_USER")
-            .build();
+                .withUsername("johndoe")
+                .password("password123")
+                .authorities("ROLE_USER")
+                .build();
     }
 
     @Test
@@ -213,7 +213,7 @@ class PublicServiceTest {
         // Arrange
         when(userDetailsService.loadUserByUsername(validLoginDTO.getUsernameorEmail())).thenReturn(mockUserDetails);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-            .thenThrow(new BadCredentialsException("Invalid credentials"));
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
 
         // Act
         ResponseEntity<ApiResponse<String>> response = publicService.login(validLoginDTO);

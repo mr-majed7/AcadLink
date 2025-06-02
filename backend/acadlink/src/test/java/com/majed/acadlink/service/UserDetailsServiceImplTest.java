@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.UserRepo;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +38,7 @@ class UserDetailsServiceImplTest {
     @BeforeEach
     void setUp() {
         testUserId = UUID.randomUUID();
-        
+
         // Setup mock user
         mockUser = new User();
         mockUser.setId(testUserId);
@@ -92,8 +92,8 @@ class UserDetailsServiceImplTest {
 
         // Act & Assert
         UsernameNotFoundException exception = assertThrows(
-            UsernameNotFoundException.class,
-            () -> userDetailsService.loadUserByUsername(email)
+                UsernameNotFoundException.class,
+                () -> userDetailsService.loadUserByUsername(email)
         );
         assertEquals("User not found with email: " + email, exception.getMessage());
         verify(userRepo, times(1)).findByEmail(email);
@@ -108,8 +108,8 @@ class UserDetailsServiceImplTest {
 
         // Act & Assert
         UsernameNotFoundException exception = assertThrows(
-            UsernameNotFoundException.class,
-            () -> userDetailsService.loadUserByUsername(username)
+                UsernameNotFoundException.class,
+                () -> userDetailsService.loadUserByUsername(username)
         );
         assertEquals("User not found with username: " + username, exception.getMessage());
         verify(userRepo, times(0)).findByEmail(anyString());

@@ -25,9 +25,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
 import com.majed.acadlink.config.StorageConfig;
-import com.majed.acadlink.domain.entitie.Folder;
-import com.majed.acadlink.domain.entitie.Materials;
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.Folder;
+import com.majed.acadlink.domain.entity.Materials;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
@@ -39,24 +39,18 @@ import com.majed.acadlink.exception.ResourceNotFoundException;
 @ExtendWith(MockitoExtension.class)
 class SaveMaterialUtilTest {
 
-    @Mock
-    private FolderRepo folderRepo;
-
-    @Mock
-    private MaterialsRepo materialsRepo;
-
-    @Mock
-    private StorageConfig storageConfig;
-
-    @Mock
-    private StorageConfig.Materials materialsConfig;
-
-    @InjectMocks
-    private SaveMaterialUtil saveMaterialUtil;
-
     @TempDir
     Path tempDir;
-
+    @Mock
+    private FolderRepo folderRepo;
+    @Mock
+    private MaterialsRepo materialsRepo;
+    @Mock
+    private StorageConfig storageConfig;
+    @Mock
+    private StorageConfig.Materials materialsConfig;
+    @InjectMocks
+    private SaveMaterialUtil saveMaterialUtil;
     private UUID testUserId;
     private UUID testFolderId;
     private UUID testMaterialId;
@@ -101,10 +95,10 @@ class SaveMaterialUtilTest {
         materialAddDTO.setType(MaterialType.BOOK);
         materialAddDTO.setPrivacy(Privacy.PUBLIC);
         testFile = new MockMultipartFile(
-            "file",
-            "test.pdf",
-            "application/pdf",
-            "test content".getBytes()
+                "file",
+                "test.pdf",
+                "application/pdf",
+                "test content".getBytes()
         );
         materialAddDTO.setFile(testFile);
 

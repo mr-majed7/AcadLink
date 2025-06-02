@@ -1,6 +1,6 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.UserRepo;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

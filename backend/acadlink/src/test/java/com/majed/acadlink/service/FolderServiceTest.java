@@ -22,9 +22,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.majed.acadlink.domain.entitie.Folder;
-import com.majed.acadlink.domain.entitie.Materials;
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.Folder;
+import com.majed.acadlink.domain.entity.Materials;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.folder.AllFolderResponseDTO;

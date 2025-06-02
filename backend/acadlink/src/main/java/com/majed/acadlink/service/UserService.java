@@ -1,19 +1,22 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.domain.entitie.User;
-import com.majed.acadlink.domain.repository.UserRepo;
-import com.majed.acadlink.dto.ApiResponse;
-import com.majed.acadlink.dto.user.UserResponseDTO;
-import com.majed.acadlink.dto.user.UserSignUpDTO;
-import com.majed.acadlink.utility.GetUserUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import com.majed.acadlink.domain.entity.User;
+import com.majed.acadlink.domain.repository.UserRepo;
+import com.majed.acadlink.dto.ApiResponse;
+import com.majed.acadlink.dto.user.UserResponseDTO;
+import com.majed.acadlink.dto.user.UserSignUpDTO;
+import com.majed.acadlink.utility.GetUserUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service class for handling user-related operations.
@@ -92,5 +95,26 @@ public class UserService {
                 user.getUsername(), user.getCreatedAt()
         );
         return ApiResponse.success(response, HttpStatus.OK);
+    }
+
+    /**
+     * Finds a user by their email address.
+     *
+     * @param email the email address to search for
+     * @return an Optional containing the user if found, empty otherwise
+     */
+    public Optional<User> findByEmail(String email) {
+        return userRepo.findByEmail(email);
+    }
+
+    /**
+     * Saves a user to the database.
+     *
+     * @param user the user to save
+     * @return the saved user
+     */
+    @Transactional
+    public User save(User user) {
+        return userRepo.save(user);
     }
 }

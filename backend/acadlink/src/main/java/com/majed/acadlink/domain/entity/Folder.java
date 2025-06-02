@@ -1,4 +1,4 @@
-package com.majed.acadlink.domain.entitie;
+package com.majed.acadlink.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.majed.acadlink.enums.Privacy;

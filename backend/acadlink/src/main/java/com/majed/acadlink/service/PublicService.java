@@ -1,14 +1,5 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.domain.repository.UserRepo;
-import com.majed.acadlink.dto.ApiResponse;
-import com.majed.acadlink.dto.ErrorResponseDTO;
-import com.majed.acadlink.dto.user.UserLoginDTO;
-import com.majed.acadlink.dto.user.UserResponseDTO;
-import com.majed.acadlink.dto.user.UserSignUpDTO;
-import com.majed.acadlink.utility.JWTUtil;
-import io.vavr.control.Either;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +7,16 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.majed.acadlink.domain.repository.UserRepo;
+import com.majed.acadlink.dto.ApiResponse;
+import com.majed.acadlink.dto.ErrorResponseDTO;
+import com.majed.acadlink.dto.user.UserLoginDTO;
+import com.majed.acadlink.dto.user.UserResponseDTO;
+import com.majed.acadlink.dto.user.UserSignUpDTO;
+import com.majed.acadlink.utility.JWTUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service class for handling public operations such as user sign-up and login.
@@ -54,26 +55,39 @@ public class PublicService {
      * @return the response entity containing the user response or an error status
      */
     public ResponseEntity<Object> addUser(UserSignUpDTO userData) {
-        if (userDetailsService.loadUserByUsername(userData.getEmail()) != null) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User exists with this email",
-                            HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+        // Check if email exists
+        if (userRepo.findByEmail(userData.getEmail()).isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO("User exists with this email",
+                            HttpStatus.BAD_REQUEST.value()));
         }
 
-        if (userDetailsService.loadUserByUsername(userData.getUserName()) != null) {
-            return new ResponseEntity<>(
-                    Either.left(new ErrorResponseDTO("User exists with this username",
-                            HttpStatus.BAD_REQUEST.value())),
-                    HttpStatus.BAD_REQUEST);
+        // Check if username exists
+        if (userRepo.findByUsername(userData.getUserName()).isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO("User exists with this username",
+                            HttpStatus.BAD_REQUEST.value()));
         }
 
         try {
             UserResponseDTO addedUser = userService.createUser(userData);
-            return new ResponseEntity<>(Either.right(addedUser), HttpStatus.CREATED);
+            if (addedUser == null) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponseDTO("Failed to create user",
+                                HttpStatus.BAD_REQUEST.value()));
+            }
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(addedUser);
         } catch (Exception e) {
-            log.error(e.toString());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            log.error("Error creating user: {}", e.getMessage(), e);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponseDTO("Error creating user: " + e.getMessage(),
+                            HttpStatus.BAD_REQUEST.value()));
         }
     }
 

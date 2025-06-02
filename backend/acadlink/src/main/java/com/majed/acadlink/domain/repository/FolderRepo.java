@@ -1,6 +1,6 @@
 package com.majed.acadlink.domain.repository;
 
-import com.majed.acadlink.domain.entitie.Folder;
+import com.majed.acadlink.domain.entity.Folder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

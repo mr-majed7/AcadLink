@@ -1,4 +1,4 @@
-package com.majed.acadlink.domain.entitie;
+package com.majed.acadlink.domain.entity;
 
 import com.majed.acadlink.enums.PeerStatus;
 import jakarta.persistence.*;

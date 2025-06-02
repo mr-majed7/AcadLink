@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.majed.acadlink.config.StorageConfig;
-import com.majed.acadlink.domain.entitie.Folder;
-import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.entity.Folder;
+import com.majed.acadlink.domain.entity.Materials;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.material.MaterialAddDTO;
@@ -60,11 +60,11 @@ public class SaveMaterialUtil {
         try {
             // Validate folder exists
             Folder folder = folderRepo.findById(materialData.getFolderId())
-                .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
 
             MultipartFile file = materialData.getFile();
             String storagePath = storageConfig.getMaterials().getPath();
-            
+
             // Create storage directory if it doesn't exist
             Path storageDir = Paths.get(storagePath);
             Files.createDirectories(storageDir);
@@ -85,19 +85,19 @@ public class SaveMaterialUtil {
             material.setLink(filePath.toString());
             material.setType(materialData.getType());
             material.setPrivacy(materialData.getPrivacy() != null ? materialData.getPrivacy() : Privacy.PUBLIC);
-            
+
             Materials savedMaterial = materialsRepo.save(material);
             if (savedMaterial == null) {
                 throw new MaterialSaveException("Failed to save material to database");
             }
 
             return new MaterialResponseDTO(
-                savedMaterial.getId(),
-                savedMaterial.getName(),
-                savedMaterial.getLink(),
-                savedMaterial.getType(),
-                savedMaterial.getPrivacy(),
-                savedMaterial.getFolder().getId()
+                    savedMaterial.getId(),
+                    savedMaterial.getName(),
+                    savedMaterial.getLink(),
+                    savedMaterial.getType(),
+                    savedMaterial.getPrivacy(),
+                    savedMaterial.getFolder().getId()
             );
         } catch (IOException e) {
             throw new MaterialSaveException("Failed to save material file", e);
@@ -114,7 +114,7 @@ public class SaveMaterialUtil {
     public MaterialResponseDTO saveMaterialLink(MaterialAddDTO materialData) {
         // Validate folder exists
         Folder folder = folderRepo.findById(materialData.getFolderId())
-            .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Folder not found"));
 
         // Save to database
         Materials material = new Materials();
@@ -123,19 +123,19 @@ public class SaveMaterialUtil {
         material.setLink(materialData.getLink());
         material.setType(materialData.getType());
         material.setPrivacy(materialData.getPrivacy() != null ? materialData.getPrivacy() : Privacy.PUBLIC);
-        
+
         Materials savedMaterial = materialsRepo.save(material);
         if (savedMaterial == null) {
             throw new MaterialSaveException("Failed to save material to database");
         }
 
         return new MaterialResponseDTO(
-            savedMaterial.getId(),
-            savedMaterial.getName(),
-            savedMaterial.getLink(),
-            savedMaterial.getType(),
-            savedMaterial.getPrivacy(),
-            savedMaterial.getFolder().getId()
+                savedMaterial.getId(),
+                savedMaterial.getName(),
+                savedMaterial.getLink(),
+                savedMaterial.getType(),
+                savedMaterial.getPrivacy(),
+                savedMaterial.getFolder().getId()
         );
     }
 }

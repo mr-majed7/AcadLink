@@ -1,6 +1,6 @@
 package com.majed.acadlink.domain.repository;
 
-import com.majed.acadlink.domain.entitie.Materials;
+import com.majed.acadlink.domain.entity.Materials;
 import com.majed.acadlink.enums.MaterialType;
 import com.majed.acadlink.enums.Privacy;
 import org.springframework.data.jpa.repository.JpaRepository;

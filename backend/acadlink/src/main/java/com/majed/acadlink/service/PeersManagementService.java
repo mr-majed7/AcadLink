@@ -1,7 +1,7 @@
 package com.majed.acadlink.service;
 
-import com.majed.acadlink.domain.entitie.Peers;
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.Peers;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.PeersRepo;
 import com.majed.acadlink.domain.repository.UserRepo;
 import com.majed.acadlink.dto.ApiResponse;

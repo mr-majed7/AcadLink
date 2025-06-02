@@ -23,7 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.UserRepo;
 import com.majed.acadlink.dto.ApiResponse;
 import com.majed.acadlink.dto.user.UserResponseDTO;
@@ -33,25 +33,22 @@ import com.majed.acadlink.utility.GetUserUtil;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Mock
     private UserRepo userRepo;
-
     @Mock
     private GetUserUtil getUserUtil;
-
     @InjectMocks
     private UserService userService;
-
     private UserSignUpDTO validSignUpDTO;
     private User mockUser;
     private UserResponseDTO expectedUserResponse;
     private UUID testUserId;
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @BeforeEach
     void setUp() {
         testUserId = UUID.randomUUID();
-        
+
         // Setup valid sign up DTO
         validSignUpDTO = new UserSignUpDTO();
         validSignUpDTO.setFirstName("John");
@@ -74,13 +71,13 @@ class UserServiceTest {
 
         // Setup expected user response
         expectedUserResponse = new UserResponseDTO(
-            testUserId,
-            "John",
-            "Doe",
-            "Test University",
-            "john.doe@example.com",
-            "johndoe",
-            LocalDate.now()
+                testUserId,
+                "John",
+                "Doe",
+                "Test University",
+                "john.doe@example.com",
+                "johndoe",
+                LocalDate.now()
         );
     }
 

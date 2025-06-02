@@ -26,9 +26,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.majed.acadlink.domain.entitie.Folder;
-import com.majed.acadlink.domain.entitie.Materials;
-import com.majed.acadlink.domain.entitie.User;
+import com.majed.acadlink.domain.entity.Folder;
+import com.majed.acadlink.domain.entity.Materials;
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.domain.repository.FolderRepo;
 import com.majed.acadlink.domain.repository.MaterialsRepo;
 import com.majed.acadlink.dto.ApiResponse;
@@ -107,21 +107,21 @@ class MaterialServiceTest {
         materialAddDTO.setType(MaterialType.BOOK);
         materialAddDTO.setPrivacy(Privacy.PUBLIC);
         testFile = new MockMultipartFile(
-            "file",
-            "test.pdf",
-            MediaType.APPLICATION_PDF_VALUE,
-            "test content".getBytes()
+                "file",
+                "test.pdf",
+                MediaType.APPLICATION_PDF_VALUE,
+                "test content".getBytes()
         );
         materialAddDTO.setFile(testFile);
 
         // Setup material response DTO
         materialResponseDTO = new MaterialResponseDTO(
-            testMaterialId,
-            "Test Material",
-            "http://example.com/test.pdf",
-            MaterialType.BOOK,
-            Privacy.PUBLIC,
-            testFolderId
+                testMaterialId,
+                "Test Material",
+                "http://example.com/test.pdf",
+                MaterialType.BOOK,
+                Privacy.PUBLIC,
+                testFolderId
         );
     }
 
@@ -130,11 +130,11 @@ class MaterialServiceTest {
         // Arrange
         when(folderRepo.existsById(testFolderId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
-            .thenReturn(materialResponseDTO);
+                .thenReturn(materialResponseDTO);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.saveMaterial(materialAddDTO);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.saveMaterial(materialAddDTO);
 
         // Assert
         assertNotNull(response);
@@ -153,11 +153,11 @@ class MaterialServiceTest {
         materialAddDTO.setLink("http://example.com/test.pdf");
         when(folderRepo.existsById(testFolderId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialLink(any(MaterialAddDTO.class)))
-            .thenReturn(materialResponseDTO);
+                .thenReturn(materialResponseDTO);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.saveMaterial(materialAddDTO);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.saveMaterial(materialAddDTO);
 
         // Assert
         assertNotNull(response);
@@ -177,8 +177,8 @@ class MaterialServiceTest {
         when(folderRepo.existsById(testFolderId)).thenReturn(true);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.saveMaterial(materialAddDTO);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.saveMaterial(materialAddDTO);
 
         // Assert
         assertNotNull(response);
@@ -196,8 +196,8 @@ class MaterialServiceTest {
         when(folderRepo.existsById(testFolderId)).thenReturn(false);
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> 
-            materialService.saveMaterial(materialAddDTO));
+        assertThrows(ResourceNotFoundException.class, () ->
+                materialService.saveMaterial(materialAddDTO));
         verify(folderRepo, times(1)).existsById(testFolderId);
     }
 
@@ -209,8 +209,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.findMaterial(testMaterialId);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.findMaterial(testMaterialId);
 
         // Assert
         assertNotNull(response);
@@ -228,8 +228,8 @@ class MaterialServiceTest {
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.findMaterial(testMaterialId);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.findMaterial(testMaterialId);
 
         // Assert
         assertNotNull(response);
@@ -259,8 +259,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(false);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.findMaterial(testMaterialId);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.findMaterial(testMaterialId);
 
         // Assert
         assertNotNull(response);
@@ -281,8 +281,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            materialService.findMaterialsByType(type, testFolderId);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                materialService.findMaterialsByType(type, testFolderId);
 
         // Assert
         assertNotNull(response);
@@ -290,7 +290,7 @@ class MaterialServiceTest {
         assertNotNull(response.getBody());
         assertNotNull(response.getBody().getData());
         assertEquals(1, response.getBody().getData().size());
-        
+
         MaterialResponseDTO materialResponse = response.getBody().getData().get(0);
         assertEquals(testMaterialId, materialResponse.getId());
         assertEquals(testMaterial.getName(), materialResponse.getName());
@@ -298,7 +298,7 @@ class MaterialServiceTest {
         assertEquals(testMaterial.getType(), materialResponse.getType());
         assertEquals(testMaterial.getPrivacy(), materialResponse.getPrivacy());
         assertEquals(testFolderId, materialResponse.getFolderId());
-        
+
         verify(materialsRepo, times(1)).findByFolderIdAndType(testFolderId, type);
         verify(folderRepo, times(1)).findById(testFolderId);
         verify(authorizationCheck, times(1)).checkAuthorization(testUserId);
@@ -311,8 +311,8 @@ class MaterialServiceTest {
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> 
-            materialService.findMaterialsByType(type, testFolderId));
+        assertThrows(ResourceNotFoundException.class, () ->
+                materialService.findMaterialsByType(type, testFolderId));
         verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(0)).findByFolderIdAndType(testFolderId, type);
     }
@@ -325,8 +325,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(false);
 
         // Act
-        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response = 
-            materialService.findMaterialsByType(type, testFolderId);
+        ResponseEntity<ApiResponse<List<MaterialResponseDTO>>> response =
+                materialService.findMaterialsByType(type, testFolderId);
 
         // Assert
         assertNotNull(response);
@@ -360,8 +360,8 @@ class MaterialServiceTest {
         when(materialsRepo.save(any(Materials.class))).thenReturn(updatedMaterial);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.updateMaterial(testMaterialId, updateDTO);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.updateMaterial(testMaterialId, updateDTO);
 
         // Assert
         assertNotNull(response);
@@ -382,8 +382,8 @@ class MaterialServiceTest {
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.updateMaterial(testMaterialId, materialAddDTO);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.updateMaterial(testMaterialId, materialAddDTO);
 
         // Assert
         assertNotNull(response);
@@ -401,8 +401,8 @@ class MaterialServiceTest {
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ResourceNotFoundException.class, () -> 
-            materialService.updateMaterial(testMaterialId, materialAddDTO));
+        assertThrows(ResourceNotFoundException.class, () ->
+                materialService.updateMaterial(testMaterialId, materialAddDTO));
         verify(materialsRepo, times(1)).findById(testMaterialId);
         verify(folderRepo, times(1)).findById(testFolderId);
         verify(materialsRepo, times(0)).save(any());
@@ -416,8 +416,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(false);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.updateMaterial(testMaterialId, materialAddDTO);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.updateMaterial(testMaterialId, materialAddDTO);
 
         // Assert
         assertNotNull(response);
@@ -437,8 +437,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            materialService.deleteMaterial(testMaterialId);
+        ResponseEntity<ApiResponse<Boolean>> response =
+                materialService.deleteMaterial(testMaterialId);
 
         // Assert
         assertNotNull(response);
@@ -455,8 +455,8 @@ class MaterialServiceTest {
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            materialService.deleteMaterial(testMaterialId);
+        ResponseEntity<ApiResponse<Boolean>> response =
+                materialService.deleteMaterial(testMaterialId);
 
         // Assert
         assertNotNull(response);
@@ -488,8 +488,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(false);
 
         // Act
-        ResponseEntity<ApiResponse<Boolean>> response = 
-            materialService.deleteMaterial(testMaterialId);
+        ResponseEntity<ApiResponse<Boolean>> response =
+                materialService.deleteMaterial(testMaterialId);
 
         // Assert
         assertNotNull(response);
@@ -511,21 +511,21 @@ class MaterialServiceTest {
         materialData.setFile(testFile);
 
         MaterialResponseDTO expectedResponse = new MaterialResponseDTO(
-            testMaterialId,
-            "test.pdf",
-            "http://example.com/test.pdf",
-            MaterialType.BOOK,
-            Privacy.PUBLIC,
-            testFolderId
+                testMaterialId,
+                "test.pdf",
+                "http://example.com/test.pdf",
+                MaterialType.BOOK,
+                Privacy.PUBLIC,
+                testFolderId
         );
 
         when(folderRepo.existsById(testFolderId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
-            .thenReturn(expectedResponse);
+                .thenReturn(expectedResponse);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.saveMaterial(materialData);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.saveMaterial(materialData);
 
         // Assert
         assertNotNull(response);
@@ -542,11 +542,11 @@ class MaterialServiceTest {
         // Arrange
         when(folderRepo.existsById(testFolderId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
-            .thenThrow(new MaterialSaveException("Failed to save material file", new IOException("Test IO error")));
+                .thenThrow(new MaterialSaveException("Failed to save material file", new IOException("Test IO error")));
 
         // Act & Assert
-        MaterialOperationException exception = assertThrows(MaterialOperationException.class, () -> 
-            materialService.saveMaterial(materialAddDTO));
+        MaterialOperationException exception = assertThrows(MaterialOperationException.class, () ->
+                materialService.saveMaterial(materialAddDTO));
         assertEquals("Failed to save material", exception.getMessage());
         assertTrue(exception.getCause() instanceof MaterialSaveException);
         assertEquals("Failed to save material file", exception.getCause().getMessage());
@@ -570,15 +570,15 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
 
         MaterialResponseDTO savedMaterialResponse = new MaterialResponseDTO(
-            testMaterialId,
-            "test.pdf",
-            "/secure/path/test.pdf",
-            MaterialType.LECTURE_NOTE,
-            Privacy.PRIVATE,
-            testFolderId
+                testMaterialId,
+                "test.pdf",
+                "/secure/path/test.pdf",
+                MaterialType.LECTURE_NOTE,
+                Privacy.PRIVATE,
+                testFolderId
         );
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
-            .thenReturn(savedMaterialResponse);
+                .thenReturn(savedMaterialResponse);
         when(materialsRepo.save(any(Materials.class))).thenAnswer(invocation -> {
             Materials savedMaterial = invocation.getArgument(0);
             savedMaterial.setId(testMaterialId);
@@ -586,8 +586,8 @@ class MaterialServiceTest {
         });
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.updateMaterial(testMaterialId, updateData);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.updateMaterial(testMaterialId, updateData);
 
         // Assert
         assertNotNull(response);
@@ -616,8 +616,8 @@ class MaterialServiceTest {
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(false);
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.updateMaterial(testMaterialId, updateData);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.updateMaterial(testMaterialId, updateData);
 
         // Assert
         assertNotNull(response);
@@ -640,8 +640,8 @@ class MaterialServiceTest {
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.empty());
 
         // Act
-        ResponseEntity<ApiResponse<MaterialResponseDTO>> response = 
-            materialService.updateMaterial(testMaterialId, updateData);
+        ResponseEntity<ApiResponse<MaterialResponseDTO>> response =
+                materialService.updateMaterial(testMaterialId, updateData);
 
         // Assert
         assertNotNull(response);
@@ -665,11 +665,11 @@ class MaterialServiceTest {
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(authorizationCheck.checkAuthorization(testUserId)).thenReturn(true);
         when(saveMaterialUtil.saveMaterialFile(any(MaterialAddDTO.class)))
-            .thenThrow(new MaterialSaveException("Failed to save material file"));
+                .thenThrow(new MaterialSaveException("Failed to save material file"));
 
         // Act & Assert
-        assertThrows(MaterialOperationException.class, () -> 
-            materialService.updateMaterial(testMaterialId, updateData));
+        assertThrows(MaterialOperationException.class, () ->
+                materialService.updateMaterial(testMaterialId, updateData));
         verify(materialsRepo, times(1)).findById(testMaterialId);
         verify(folderRepo, times(1)).findById(testFolderId);
         verify(authorizationCheck, times(1)).checkAuthorization(testUserId);

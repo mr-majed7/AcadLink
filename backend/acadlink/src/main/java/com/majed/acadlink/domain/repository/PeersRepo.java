@@ -1,6 +1,6 @@
 package com.majed.acadlink.domain.repository;
 
-import com.majed.acadlink.domain.entitie.Peers;
+import com.majed.acadlink.domain.entity.Peers;
 import com.majed.acadlink.enums.PeerStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
