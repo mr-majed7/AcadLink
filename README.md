@@ -1,10 +1,10 @@
-
 # <div align="center"><img src="docs/Logo.png" alt="AcadLink" height="40" style="vertical-align: middle;"/> AcadLink</div>
 
 [![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://www.java.com/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-data-jpa)
 [![MySQL](https://img.shields.io/badge/MySQL-00000F?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)](https://redis.io/)
 [![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=JSON%20web%20tokens&logoColor=white)](https://jwt.io/)
 [![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=flat&logo=swagger&logoColor=black)](https://swagger.io/)
 [![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat&logo=apache-maven&logoColor=white)](https://maven.apache.org/)
@@ -82,6 +82,7 @@
 - **Framework**: Spring Boot 3.4.1
 - **Security**: Spring Security with JWT
 - **Database**: MySQL 8
+- **Cache**: Redis (for OTP verification)
 - **Documentation**: Swagger/OpenAPI
 - **Testing**: JUnit 5, Mockito
 - **Code Quality**: SonarQube, JaCoCo
@@ -92,6 +93,7 @@
 - Spring Boot Starter Data JPA
 - Spring Boot Starter Security
 - Spring Boot Starter Mail
+- Spring Boot Starter Data Redis
 - JWT for authentication
 - Lombok for code reduction
 - Vavr for functional programming
@@ -153,6 +155,7 @@ Here are some screenshots of our API interface and documentation:
 - Java 21 or later
 - Maven
 - MySQL 8
+- Redis 6 or later
 
 ### Setup Instructions
 
@@ -168,12 +171,26 @@ Here are some screenshots of our API interface and documentation:
    - Update the configuration values in `application.yml` with your environment-specific settings
    - Make sure to set proper values for:
      - Database credentials
+     - Redis connection settings
      - Email settings
      - JWT secret
      - Storage path
      - Sonar token (if using SonarQube)
 
-3. **Build and Run**
+3. **Start Redis Server**
+
+   ```bash
+   # On Ubuntu/Debian
+   sudo systemctl start redis-server
+   
+   # On macOS with Homebrew
+   brew services start redis
+   
+   # On Windows
+   redis-server
+   ```
+
+4. **Build and Run**
 
    ```bash
    mvn clean install
