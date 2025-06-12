@@ -27,6 +27,7 @@ import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.dto.emailverification.EmailVerificationRequest;
 import com.majed.acadlink.dto.emailverification.EmailVerificationResponse;
 import com.majed.acadlink.exception.EmailVerificationException;
+import com.majed.acadlink.exception.VerificationCodeException;
 import com.majed.acadlink.service.EmailService;
 import com.majed.acadlink.service.UserService;
 import com.majed.acadlink.service.VerificationCodeService;
@@ -263,5 +264,77 @@ class EmailVerificationControllerTest {
         response = emailVerificationController.resendVerification(null);
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void verifyEmail_VerificationCodeException() {
+        // Arrange
+        when(userService.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
+        when(verificationCodeService.isVerificationCodeValid(userId, testEmail, testOtp))
+                .thenThrow(new VerificationCodeException("Verification code error"));
+
+        // Act
+        ResponseEntity<EmailVerificationResponse> response = emailVerificationController.verifyEmail(validRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isVerified());
+        assertEquals("Verification code error: Verification code error", response.getBody().getMessage());
+    }
+
+    @Test
+    void resendVerification_VerificationCodeException() {
+        // Arrange
+        when(userService.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
+        when(verificationCodeService.generateAndStoreOTP(userId, testEmail))
+                .thenThrow(new VerificationCodeException("Failed to generate OTP"));
+
+        // Act
+        ResponseEntity<EmailVerificationResponse> response = emailVerificationController.resendVerification(testEmail);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isVerified());
+        assertEquals("Verification code error: Failed to generate OTP", response.getBody().getMessage());
+    }
+
+    @Test
+    void verifyEmail_UnexpectedException() {
+        // Arrange
+        when(userService.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
+        when(verificationCodeService.isVerificationCodeValid(userId, testEmail, testOtp))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act
+        ResponseEntity<EmailVerificationResponse> response = emailVerificationController.verifyEmail(validRequest);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isVerified());
+        assertEquals("Verification failed due to an unexpected error", response.getBody().getMessage());
+    }
+
+    @Test
+    void resendVerification_UnexpectedException() {
+        // Arrange
+        when(userService.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
+        when(verificationCodeService.generateAndStoreOTP(userId, testEmail))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act
+        ResponseEntity<EmailVerificationResponse> response = emailVerificationController.resendVerification(testEmail);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isVerified());
+        assertEquals("Failed to resend verification code due to an unexpected error", response.getBody().getMessage());
     }
 } 
