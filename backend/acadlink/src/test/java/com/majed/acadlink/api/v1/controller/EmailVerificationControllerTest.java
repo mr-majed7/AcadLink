@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -203,7 +202,7 @@ class EmailVerificationControllerTest {
         when(userService.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
         when(verificationCodeService.generateAndStoreOTP(userId, testEmail)).thenReturn(testOtp);
         doThrow(new EmailVerificationException("Failed to send email"))
-                .when(emailService).sendVerificationEmail(eq(testEmail), eq(testOtp));
+                .when(emailService).sendVerificationEmail(testEmail, testOtp);
 
         // Act
         ResponseEntity<EmailVerificationResponse> response = emailVerificationController.resendVerification(testEmail);

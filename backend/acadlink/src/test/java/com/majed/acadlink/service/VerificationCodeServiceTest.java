@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +27,7 @@ import org.springframework.data.redis.core.ValueOperations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.majed.acadlink.exception.VerificationCodeException;
 
 @ExtendWith(MockitoExtension.class)
 class VerificationCodeServiceTest {
@@ -82,7 +82,7 @@ class VerificationCodeServiceTest {
         // Assert
         assertNotNull(generatedOtp);
         assertEquals(6, generatedOtp.length());
-        verify(valueOperations).set(eq(redisKey), eq(verificationCodeJson), eq(5L), eq(TimeUnit.MINUTES));
+        verify(valueOperations).set(redisKey, verificationCodeJson, 5L, TimeUnit.MINUTES);
     }
 
     @Test
@@ -95,7 +95,7 @@ class VerificationCodeServiceTest {
         verificationCodeService.storeVerificationCode(userId, email, otp);
 
         // Assert
-        verify(valueOperations).set(eq(redisKey), eq(verificationCodeJson), eq(5L), eq(TimeUnit.MINUTES));
+        verify(valueOperations).set(redisKey, verificationCodeJson, 5L, TimeUnit.MINUTES);
     }
 
     @Test
@@ -105,8 +105,8 @@ class VerificationCodeServiceTest {
         when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("JSON error") {});
 
         // Act & Assert
-        RuntimeException exception = assertThrows(
-            RuntimeException.class,
+        VerificationCodeException exception = assertThrows(
+            VerificationCodeException.class,
             () -> verificationCodeService.storeVerificationCode(userId, email, otp)
         );
         assertEquals("Failed to store verification code", exception.getMessage());
@@ -153,8 +153,8 @@ class VerificationCodeServiceTest {
             .thenThrow(new JsonProcessingException("JSON error") {});
 
         // Act & Assert
-        RuntimeException exception = assertThrows(
-            RuntimeException.class,
+        VerificationCodeException exception = assertThrows(
+            VerificationCodeException.class,
             () -> verificationCodeService.getVerificationCode(userId, email)
         );
         assertEquals("Failed to read verification code", exception.getMessage());

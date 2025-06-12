@@ -45,6 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class EmailVerificationFilter extends OncePerRequestFilter {
+    private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server error during email verification check";
+    
     private final UserRepo userRepo;
     private final ObjectMapper objectMapper;
 
@@ -109,7 +111,7 @@ public class EmailVerificationFilter extends OncePerRequestFilter {
         if (username == null || username.trim().isEmpty()) {
             log.error("Username is null or empty in authentication");
             sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, 
-                "Internal server error during email verification check");
+                INTERNAL_SERVER_ERROR_MESSAGE);
             return;
         }
 
@@ -122,7 +124,7 @@ public class EmailVerificationFilter extends OncePerRequestFilter {
             if (user == null) {
                 log.error("User not found in email verification filter: {}", username);
                 sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, 
-                    "Internal server error during email verification check");
+                    INTERNAL_SERVER_ERROR_MESSAGE);
                 return;
             }
 
@@ -139,7 +141,7 @@ public class EmailVerificationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             log.error("Error in email verification filter: {}", e.getMessage());
             sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, 
-                "Internal server error during email verification check");
+                INTERNAL_SERVER_ERROR_MESSAGE);
         }
     }
 

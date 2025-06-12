@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.majed.acadlink.config.StorageConfig;
 import com.majed.acadlink.domain.entity.Folder;
 import com.majed.acadlink.domain.entity.Materials;
 import com.majed.acadlink.domain.repository.FolderRepo;
@@ -39,7 +38,6 @@ public class MaterialService {
     private final MaterialsRepo materialsRepo;
     private final SaveMaterialUtil saveMaterialUtil;
     private final AuthorizationCheck authorizationCheck;
-    private final StorageConfig storageConfig;
 
     /**
      * Constructor for MaterialService.
@@ -48,20 +46,17 @@ public class MaterialService {
      * @param materialsRepo      the materials repository
      * @param saveMaterialUtil   utility to save material files and links
      * @param authorizationCheck utility to check user authorization
-     * @param storageConfig      configuration for storage
      */
     public MaterialService(
             FolderRepo folderRepo,
             MaterialsRepo materialsRepo,
             SaveMaterialUtil saveMaterialUtil,
-            AuthorizationCheck authorizationCheck,
-            StorageConfig storageConfig
+            AuthorizationCheck authorizationCheck
     ) {
         this.folderRepo = folderRepo;
         this.materialsRepo = materialsRepo;
         this.saveMaterialUtil = saveMaterialUtil;
         this.authorizationCheck = authorizationCheck;
-        this.storageConfig = storageConfig;
     }
 
     /**

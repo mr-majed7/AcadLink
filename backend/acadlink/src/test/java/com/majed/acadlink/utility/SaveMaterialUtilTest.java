@@ -62,7 +62,7 @@ class SaveMaterialUtilTest {
     private String testStoragePath;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         testUserId = UUID.randomUUID();
         testFolderId = UUID.randomUUID();
         testMaterialId = UUID.randomUUID();
@@ -144,7 +144,7 @@ class SaveMaterialUtilTest {
     }
 
     @Test
-    void saveMaterialFile_IOException() throws IOException {
+    void saveMaterialFile_IOException() {
         // Arrange
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(materialsRepo.save(any(Materials.class))).thenThrow(new RuntimeException("Test error"));

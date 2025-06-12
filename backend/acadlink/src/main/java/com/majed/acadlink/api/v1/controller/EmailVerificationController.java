@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.majed.acadlink.domain.entity.User;
 import com.majed.acadlink.dto.emailverification.EmailVerificationRequest;
 import com.majed.acadlink.dto.emailverification.EmailVerificationResponse;
 import com.majed.acadlink.exception.EmailVerificationException;
 import com.majed.acadlink.exception.ResourceNotFoundException;
+import com.majed.acadlink.exception.VerificationCodeException;
 import com.majed.acadlink.service.EmailService;
 import com.majed.acadlink.service.UserService;
 import com.majed.acadlink.service.VerificationCodeService;
@@ -81,6 +83,7 @@ public class EmailVerificationController {
      *         - 400 Bad Request with error message if verification fails
      * @throws ResourceNotFoundException if user not found
      * @throws EmailVerificationException if verification process fails
+     * @throws VerificationCodeException if verification code operations fail
      */
     @Operation(
         summary = "Verify email address",
@@ -104,10 +107,10 @@ public class EmailVerificationController {
     public ResponseEntity<EmailVerificationResponse> verifyEmail(
             @Valid @RequestBody EmailVerificationRequest request) {
         try {
-            var user = userService.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
-
-            if (user.isEmailVerified()) {
+            User user = validateUserAndEmailStatus(request.getEmail());
+            
+            // If user is null, it means email is already verified
+            if (user == null) {
                 return ResponseEntity.ok(new EmailVerificationResponse(true, "Email already verified"));
             }
 
@@ -127,18 +130,8 @@ public class EmailVerificationController {
                 return ResponseEntity.badRequest()
                         .body(new EmailVerificationResponse(false, "Invalid verification code"));
             }
-        } catch (ResourceNotFoundException e) {
-            log.error("User not found during email verification: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new EmailVerificationResponse(false, e.getMessage()));
-        } catch (EmailVerificationException e) {
-            log.error("Email verification error: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new EmailVerificationResponse(false, e.getMessage()));
         } catch (Exception e) {
-            log.error("Unexpected error during email verification: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new EmailVerificationResponse(false, "Verification failed due to an unexpected error"));
+            return handleEmailVerificationException(e, "email verification");
         }
     }
 
@@ -167,6 +160,7 @@ public class EmailVerificationController {
      *         - 400 Bad Request with error message if resend fails
      * @throws ResourceNotFoundException if user not found
      * @throws EmailVerificationException if email sending fails
+     * @throws VerificationCodeException if verification code operations fail
      */
     @Operation(
         summary = "Resend verification code",
@@ -191,10 +185,10 @@ public class EmailVerificationController {
             @Parameter(description = "Email address to resend verification code to", required = true)
             @RequestParam @Valid String email) {
         try {
-            var user = userService.findByEmail(email)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-
-            if (user.isEmailVerified()) {
+            User user = validateUserAndEmailStatus(email);
+            
+            // If user is null, it means email is already verified
+            if (user == null) {
                 return ResponseEntity.ok(new EmailVerificationResponse(true, "Email already verified"));
             }
 
@@ -202,18 +196,56 @@ public class EmailVerificationController {
             emailService.sendVerificationEmail(email, otp);
 
             return ResponseEntity.ok(new EmailVerificationResponse(true, "Verification code sent successfully"));
-        } catch (ResourceNotFoundException e) {
-            log.error("User not found during resend verification: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new EmailVerificationResponse(false, e.getMessage()));
-        } catch (EmailVerificationException e) {
-            log.error("Email verification error during resend: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new EmailVerificationResponse(false, e.getMessage()));
         } catch (Exception e) {
-            log.error("Unexpected error during resend verification: {}", e.getMessage());
+            return handleEmailVerificationException(e, "resend verification");
+        }
+    }
+
+    /**
+     * Validates that a user exists with the given email and that the email is not already verified.
+     *
+     * @param email the email address to validate
+     * @return the user if validation passes, null if email is already verified
+     * @throws ResourceNotFoundException if user not found
+     */
+    private User validateUserAndEmailStatus(String email) {
+        User user = userService.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        if (user.isEmailVerified()) {
+            return null; // Return null to indicate email is already verified
+        }
+
+        return user;
+    }
+
+    /**
+     * Handles exceptions during email verification operations and returns appropriate error responses.
+     *
+     * @param e the exception that occurred
+     * @param operation the operation being performed (for logging purposes)
+     * @return ResponseEntity with error response
+     */
+    private ResponseEntity<EmailVerificationResponse> handleEmailVerificationException(Exception e, String operation) {
+        if (e instanceof ResourceNotFoundException) {
+            log.error("User not found during {}: {}", operation, e.getMessage());
             return ResponseEntity.badRequest()
-                    .body(new EmailVerificationResponse(false, "Failed to resend verification code due to an unexpected error"));
+                    .body(new EmailVerificationResponse(false, e.getMessage()));
+        } else if (e instanceof VerificationCodeException) {
+            log.error("Verification code error during {}: {}", operation, e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new EmailVerificationResponse(false, "Verification code error: " + e.getMessage()));
+        } else if (e instanceof EmailVerificationException) {
+            log.error("Email verification error during {}: {}", operation, e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new EmailVerificationResponse(false, e.getMessage()));
+        } else {
+            log.error("Unexpected error during {}: {}", operation, e.getMessage());
+            String errorMessage = operation.equals("email verification") 
+                ? "Verification failed due to an unexpected error"
+                : "Failed to resend verification code due to an unexpected error";
+            return ResponseEntity.badRequest()
+                    .body(new EmailVerificationResponse(false, errorMessage));
         }
     }
 }

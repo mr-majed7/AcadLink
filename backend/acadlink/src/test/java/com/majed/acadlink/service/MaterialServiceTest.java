@@ -395,7 +395,7 @@ class MaterialServiceTest {
     }
 
     @Test
-    void updateMaterial_FolderNotFound() throws IOException {
+    void updateMaterial_FolderNotFound() {
         // Arrange
         when(materialsRepo.findById(testMaterialId)).thenReturn(Optional.of(testMaterial));
         when(folderRepo.findById(testFolderId)).thenReturn(Optional.empty());

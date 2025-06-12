@@ -2,6 +2,7 @@ package com.majed.acadlink.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.majed.acadlink.exception.VerificationCodeException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class VerificationCodeService {
     private static final String VERIFICATION_PREFIX = "verification:";
     private static final String EMAIL_VERIFICATION_TYPE = "email:";
+    private static final String REDIS_KEY_FORMAT = "%s%s%s:%s";
     private static final long OTP_EXPIRATION = 5;
     private static final Random random = new SecureRandom();
     private final StringRedisTemplate redisTemplate;
@@ -95,10 +97,10 @@ public class VerificationCodeService {
      * @param userId the ID of the user
      * @param email the email address
      * @param code the verification code to store
-     * @throws RuntimeException if storage fails
+     * @throws VerificationCodeException if storage fails
      */
     public void storeVerificationCode(UUID userId, String email, String code) {
-        String key = String.format("%s%s%s:%s",
+        String key = String.format(REDIS_KEY_FORMAT,
                 VERIFICATION_PREFIX,
                 EMAIL_VERIFICATION_TYPE,
                 userId.toString(),
@@ -116,7 +118,7 @@ public class VerificationCodeService {
             );
         } catch (JsonProcessingException e) {
             log.error("Error storing verification code for user {}: {}", userId, e.getMessage());
-            throw new RuntimeException("Failed to store verification code", e);
+            throw new VerificationCodeException("Failed to store verification code", e);
         }
     }
 
@@ -127,10 +129,10 @@ public class VerificationCodeService {
      * @param userId the ID of the user
      * @param email the email address
      * @return the stored verification code data, or null if not found
-     * @throws RuntimeException if retrieval fails
+     * @throws VerificationCodeException if retrieval fails
      */
     public VerificationCodeData getVerificationCode(UUID userId, String email) {
-        String key = String.format("%s%s%s:%s",
+        String key = String.format(REDIS_KEY_FORMAT,
                 VERIFICATION_PREFIX,
                 EMAIL_VERIFICATION_TYPE,
                 userId.toString(),
@@ -143,7 +145,7 @@ public class VerificationCodeService {
             return objectMapper.readValue(data, VerificationCodeData.class);
         } catch (JsonProcessingException e) {
             log.error("Error reading verification code for user {}: {}", userId, e.getMessage());
-            throw new RuntimeException("Failed to read verification code", e);
+            throw new VerificationCodeException("Failed to read verification code", e);
         }
     }
 
@@ -172,7 +174,7 @@ public class VerificationCodeService {
      * @param email the email address
      */
     public void removeVerificationCode(UUID userId, String email) {
-        String key = String.format("%s%s%s:%s",
+        String key = String.format(REDIS_KEY_FORMAT,
                 VERIFICATION_PREFIX,
                 EMAIL_VERIFICATION_TYPE,
                 userId.toString(),

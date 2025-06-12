@@ -1,13 +1,22 @@
 package com.majed.acadlink.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 /**
  * Users table.
@@ -16,7 +25,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Data
-@JsonIgnoreProperties({"folders"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -48,6 +56,7 @@ public class User {
     private boolean emailVerified = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Folder> folders;
 
     /**

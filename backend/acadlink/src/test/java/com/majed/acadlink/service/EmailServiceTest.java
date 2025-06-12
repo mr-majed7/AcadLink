@@ -23,7 +23,6 @@ import org.thymeleaf.context.Context;
 
 import com.majed.acadlink.exception.EmailVerificationException;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +54,7 @@ class EmailServiceTest {
     }
 
     @Test
-    void sendVerificationEmail_Success() throws MessagingException { // Assuming jakarta.mail.MessagingException for MimeMessageHelper setup
+    void sendVerificationEmail_Success() {
         // Arrange
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(templateEngine.process(eq("verification-email"), any(Context.class)))

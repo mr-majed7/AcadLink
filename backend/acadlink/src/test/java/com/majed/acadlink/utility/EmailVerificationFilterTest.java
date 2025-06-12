@@ -16,6 +16,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -64,27 +66,15 @@ class EmailVerificationFilterTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
-    @Test
-    void shouldNotFilter_PublicPath() {
-        request.setRequestURI("/v1/public/test");
-        assertTrue(filter.shouldNotFilter(request));
-    }
-
-    @Test
-    void shouldNotFilter_AuthPath() {
-        request.setRequestURI("/auth/verify-email");
-        assertTrue(filter.shouldNotFilter(request));
-    }
-
-    @Test
-    void shouldNotFilter_LoginPath() {
-        request.setRequestURI("/public/login");
-        assertTrue(filter.shouldNotFilter(request));
-    }
-
-    @Test
-    void shouldNotFilter_SignupPath() {
-        request.setRequestURI("/public/sign-up");
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "/v1/public/test",
+        "/auth/verify-email", 
+        "/public/login",
+        "/public/sign-up"
+    })
+    void shouldNotFilter_SkippedPaths(String path) {
+        request.setRequestURI(path);
         assertTrue(filter.shouldNotFilter(request));
     }
 
