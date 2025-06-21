@@ -56,10 +56,9 @@
   - [Installation](#installation)
   - [Configuration](#configuration)
 - [Database Design](#database-design)
+- [API Documentation](#api-documentation)
 - [Testing and Quality](#testing-and-quality)
 - [Code Quality](#code-quality)
-- [Contributing](#contributing)
-- [License](#license)
 - [Author](#author)
 
 </div>
@@ -73,6 +72,7 @@
 - Folder-based content management
 - Peer collaboration and material sharing
 - Advanced search capabilities for materials and users
+- **Email verification system** with OTP functionality
 
 ## 🛠 Technical Stack
 
@@ -107,6 +107,7 @@
 - Password encryption using BCrypt
 - Secure file storage
 - Privacy controls for materials and folders
+- **Email verification** with time-limited OTP codes
 
 ## 📊 Database Design
 
@@ -123,14 +124,30 @@ The database schema is designed to efficiently manage users, materials, folders,
 
 ## 📚 API Documentation
 
-The API documentation is available through Swagger UI at the root path (`/v1`). The API is organized into the following sections:
+AcadLink provides comprehensive API documentation with the following features:
 
-1. Public Endpoints (Sign Up, Sign In)
-2. Profile Management
-3. Folder Management
-4. Materials Management
-5. Find Materials
-6. Peer Management
+### **Interactive Documentation**
+
+- **Swagger UI**: Available at `/v1` when the application is running
+- **Markdown Documentation**: Complete API reference in Markdown format
+
+### **API Sections**
+
+The API is organized into the following sections:
+
+1. **Public Endpoints** (Sign Up, Sign In, Username Check)
+2. **Email Verification** (OTP verification and resend functionality)
+3. **Profile Management** (User profile operations)
+4. **Folder Management** (Create, update, and manage folders)
+5. **Materials Management** (Upload, update, and organize materials)
+6. **Find Materials** (Search and discover materials)
+7. **Peer Management** (Connect with other users)
+
+### **Documentation Files**
+
+- **Interactive API Docs**: `/docs/API_DOCUMENTATION.md` - Complete API reference with examples
+- **Swagger Specification**: `swagger.json` - OpenAPI 3.1.0 specification
+- **Database Schema**: `acadlink_schema.sql` - Complete database structure
 
 ## 🖥️ API Interface Preview
 
