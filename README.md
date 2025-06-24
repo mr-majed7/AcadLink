@@ -48,13 +48,12 @@
 
 <div style="margin-top: 1em;">
 
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
+- [Key Features](#key-features)
+- [Technical Stack](#technical-stack)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
+  - [Installation](#setup-instructions)
+  - [Configuration](#setup-instructions)
 - [Database Design](#database-design)
 - [API Documentation](#api-documentation)
 - [Testing and Quality](#testing-and-quality)
@@ -65,7 +64,7 @@
 
 </details>
 
-## 🚀 Key Features
+## Key Features
 
 - Secure user authentication and profile management
 - Material upload and organization with privacy controls
@@ -74,7 +73,7 @@
 - Advanced search capabilities for materials and users
 - **Email verification system** with OTP functionality
 
-## 🛠 Technical Stack
+## Technical Stack
 
 ### Backend
 
@@ -99,7 +98,7 @@
 - Vavr for functional programming
 - SpringDoc for API documentation
 
-## 🔒 Security Features
+## Security Features
 
 - JWT-based authentication
 - Stateless security model
@@ -109,7 +108,7 @@
 - Privacy controls for materials and folders
 - **Email verification** with time-limited OTP codes
 
-## 📊 Database Design
+## Database Design
 
 The database schema is designed to efficiently manage users, materials, folders, and peer relationships. Here's a visual representation of our database structure:
 
@@ -122,7 +121,7 @@ The database schema is designed to efficiently manage users, materials, folders,
 - **Materials**: Handles material metadata and storage paths
 - **Peer Relationships**: Tracks peer connections and request status
 
-## 📚 API Documentation
+## API Documentation
 
 AcadLink provides comprehensive API documentation with the following features:
 
@@ -145,11 +144,11 @@ The API is organized into the following sections:
 
 ### **Documentation Files**
 
-- **Interactive API Docs**: `/docs/API_DOCUMENTATION.md` - Complete API reference with examples
+- **Interactive API Docs**: [Complete API reference with examples](docs/API_DOCUMENTATION.md)
 - **Swagger Specification**: `swagger.json` - OpenAPI 3.1.0 specification
 - **Database Schema**: `acadlink_schema.sql` - Complete database structure
 
-## 🖥️ API Interface Preview
+## API Interface Preview
 
 Here are some screenshots of our API interface and documentation:
 
@@ -165,7 +164,7 @@ Here are some screenshots of our API interface and documentation:
 4. **API Response Example**
    ![API Response Example](docs/response_ss.png)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -214,7 +213,7 @@ Here are some screenshots of our API interface and documentation:
    mvn spring-boot:run
    ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 backend/
@@ -233,7 +232,7 @@ backend/
 - `test/java/com/majed/acadlink/`: Test cases
 - `pom.xml`: Maven build file
 
-## 🧪 Testing and Quality
+## Testing and Quality
 
 - Comprehensive unit testing with JUnit 5
 - Mockito for mocking dependencies
@@ -241,7 +240,7 @@ backend/
 - JaCoCo for code coverage reporting
 - Automated test execution with Maven
 
-## <img src="https://img.shields.io/badge/-4CAF50?style=flat&logo=check&logoColor=white" alt="Quality" height="20"/> Code Quality
+## Code Quality
 
 AcadLink uses SonarCloud for continuous code quality monitoring. The project's code quality is automatically analyzed on every push to the main branch, ensuring:
 
